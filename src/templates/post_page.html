@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>{{title}}</title>
+<style type="text/css">
+html, body {
+    background: rgb(255,255,255);
+    background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(235,219,194,1) 100%);
+    color: #333;
+    margin: 0;
+    padding: 0;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 18px;
+}
+
+aside {
+    background: #282828;
+    background: linear-gradient(to bottom, #111 0%,#343434 100%);
+    color: #ccc;
+    width: 100%;
+    box-shadow: 0 0 15px rgba(0,0,0,0.4);
+    text-align: center;
+    padding: 2em 0;
+}
+
+article {
+    line-height: 1.4em;
+}
+
+article, section {
+    margin: 0 auto;
+    max-width: 900px;
+    padding: 3em;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin: 1.5em 0 1em;
+    line-height: initial;
+}
+
+.index article {
+    margin: 3em 0;
+    padding: 0;
+}
+
+aside a.face img {
+    width: 130px;
+    height: 130px;
+    padding: 5px;
+    border: 3px solid #d04e47;
+    border-radius: 75px;
+    transition: box-shadow 0.5s;
+}
+
+aside a {
+    text-decoration: none;
+    outline: none;
+}
+
+aside a.icon {
+    margin: 0 2px;
+    padding: 4px;
+    border-radius: 15px;
+    display: inline-block;
+    width: 24px;
+    height: 25px;
+    background: #000;
+}
+
+aside a.icon svg {
+    fill: #ccc;
+    width: 16px;
+    height: 16px;
+    padding: 4px;
+}
+
+aside a.icon:hover svg {
+    fill: #fff;
+}
+
+aside a.face:hover img {
+    box-shadow: 0 0 40px #d04e47;
+}
+
+aside h1 {
+    color: #fff;
+    margin: 1em 0 0.3em;
+}
+
+article a {
+    text-decoration:none; 
+    color: #d04e47;
+}
+
+article header h1, .index header h1 {
+    font-size: 3em;
+    margin: 0 0 0.1em;
+}
+
+.index article h2 {
+    margin: 0 0 0.3em;
+}
+
+.index article h2 a {
+    color: #000;
+    text-decoration: none;
+    transition: color 0.3s ease-in-out;
+}
+
+.index article h2 a:hover {
+    color: #d04e47;
+}
+
+article header time, .index article time {
+    display: block;
+    margin: 0 0 2em;
+    color: #888;
+}
+
+aside em {
+    color: #777;
+    font-style: normal;
+}
+
+aside hr {
+    margin: 1.5em auto;
+    width: 100px;
+    border: none;
+    border-bottom: 1px solid #d04e47;
+}
+
+aside p {
+    padding: 0 2em;
+}
+
+code, pre {
+    font-size: 16px;
+    line-height: 22px;
+    border-radius: 0.3em;
+    background: #f8f8f8;
+}
+
+code {
+    color: #000;
+    padding: 0.1em 0.3em;
+}
+
+pre {
+    color: #666;
+    padding: 1em;
+    overflow-x: auto;
+}
+
+pre code {
+    padding: 0;
+    color: inherit;
+}
+
+pre s, pre a, pre em, pre b, pre u, pre i {
+    text-decoration: none;
+    font-weight: inherit;
+    font-style: inherit;
+}
+
+pre code.language-text {
+    color: #000;
+}
+
+pre a { color: #22b189; }
+pre i { color: #000; }
+pre u { color: #2574ce; }
+pre b { color: #d72222; }
+pre em { color: #999; font-style: italic; }
+
+img[src*='#center'] { 
+    display: block;
+    margin: auto;
+}
+
+@media screen and (min-width: 1000px) {
+    body {
+        padding-left: 360px;
+    }
+
+    aside {
+        width: 360px;
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 100vh;
+        padding: 0;
+    }
+
+    aside a.face img {
+        margin-top: 10vh;
+    }
+
+    article, .index {
+        padding: 3em 3em;
+    }
+}
+</style>
+</head>
+<body>
+<article>
+    <header>
+        <h1>{{title}}</h1>
+        <time>Posted on {{date}}</time>
+    </header>
+
+    <p>{{body}}</p>
+
+</article>
+<aside>
+    <a href="../home" class="face"><img src="/static/alde.jpg" /></a>
+    <h1>Hi, I'm Alde</h1>
+    <em>IPA: /ˈAl.d.&e.</em>
+    <hr>
+    <p>I have stolen the design of this page here :</p>
+    <p>https://maciej.codes/</p>
+    <hr>
+</aside>
+</body>
+</html>
