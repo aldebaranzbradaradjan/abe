@@ -7,10 +7,19 @@ use ramhorns::{
 use crate::db::*;
 use crate::errors::ApiError;
 
+extern crate pulldown_cmark;
+
+use pulldown_cmark::{
+    html,
+    Options,
+    Parser
+};
+
+use std::str::FromStr;
+
 #[derive(Content)]
 struct PostContent<'a> {
     title: &'a str,
-    #[md]
     body: &'a str,
     date: String,
 }
@@ -35,8 +44,6 @@ struct BlogContent<'a> {
 struct LoginContent<'a> {
     title: &'a str,
 }
-
-use std::str::FromStr;
 
 pub struct Heading {
     pub depth: usize,
@@ -158,6 +165,21 @@ pub fn add_markdown_toc( content : &str ) -> Result<String, ApiError> {
     Ok( result )
 }
 
+pub fn markdown_to_html( markdown : &str ) -> Result<String, ApiError> {
+    let mut options = Options::empty();
+
+    options.insert(Options::ENABLE_STRIKETHROUGH);
+    options.insert(Options::ENABLE_TABLES);
+    //options.insert(Options::ENABLE_FOOTNOTES);
+
+    let parser = Parser::new_ext(markdown, options);
+
+    let mut html_output: String = String::with_capacity(markdown.len() * 3 / 2);
+    html::push_html(&mut html_output, parser);
+    Ok( html_output )
+}
+
+
 pub fn post_template( id : &str ) -> Result<String, ApiError> {
 
     let tpl = Template::from_file("./src/templates/post_page.html") ? ;
@@ -166,7 +188,7 @@ pub fn post_template( id : &str ) -> Result<String, ApiError> {
     let posts_content =
         PostContent {
             title : &post.title,
-            body : &add_markdown_toc( &post.body ) ?,
+            body :  &markdown_to_html( &add_markdown_toc( &post.body ) ? ) ? ,
             date : format!("{}", &post.created_at),
         };
 

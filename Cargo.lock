@@ -54,6 +54,7 @@ dependencies = [
  "futures",
  "listenfd",
  "log",
+ "pulldown-cmark 0.7.2",
  "ramhorns",
  "rand 0.7.3",
  "ring",
@@ -1403,6 +1404,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "pulldown-cmark"
+version = "0.7.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ca36dea94d187597e104a5c8e4b07576a8a45aa5db48a65e12940d3eb7461f55"
+dependencies = [
+ "bitflags",
+ "memchr",
+ "unicase",
+]
+
+[[package]]
 name = "quick-error"
 version = "1.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1433,7 +1445,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7525e62204b1d821d987e7cf07ef1a51b237495a1caad61001740008387f261c"
 dependencies = [
  "fnv",
- "pulldown-cmark",
+ "pulldown-cmark 0.4.1",
  "ramhorns-derive",
 ]
 
