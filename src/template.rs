@@ -12,10 +12,14 @@ extern crate pulldown_cmark;
 use pulldown_cmark::{
     html,
     Options,
-    Parser
+    Parser,
+    Event,
+    Tag
 };
 
-use std::str::FromStr;
+use syntect::parsing::SyntaxSet;
+use syntect::highlighting::ThemeSet;
+use syntect::html::highlighted_html_for_string;
 
 #[derive(Content)]
 struct PostContent<'a> {
@@ -45,138 +49,167 @@ struct LoginContent<'a> {
     title: &'a str,
 }
 
-pub struct Heading {
-    pub depth: usize,
-    pub title: String,
-}
-
-impl FromStr for Heading {
-    type Err = ();
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let trimmed = s.trim_right();
-
-        if trimmed.starts_with("#") {
-            let mut depth = 0usize;
-            let title = trimmed
-                .chars()
-                .skip_while(|c| {
-                    if *c == '#' {
-                        depth += 1;
-                        true
-                    } else {
-                        false
-                    }
-                }).collect::<String>()
-                .trim_left()
-                .to_owned();
-
-            Ok(Heading {
-                depth: depth - 1,
-                title,
-            })
-        }
-        else {
-            Err(())
-        }
-    }
-}
-
-impl Heading {
-    pub fn format(&self) -> Option<String> {
-        //let depth : usize;
-        //if self.depth > 2 { depth = 2; }
-        //else { depth = self.depth; }
-
-        Some(format!(
-            "{} {} {}",
-            " ".repeat(2)
-                .repeat(self.depth),
-            "*",
-            format!("[{}](#user-content-{})", &self.title, &self.title.replace(" ", "-").to_lowercase() )
-        ))
-    }
-}
-
-pub struct ContentM {
-    pub line: String,
-}
-
-impl FromStr for ContentM {
-    type Err = ();
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let trimmed = s.trim_right();
-
-        if trimmed.starts_with("#") {
-            let mut depth = 0usize;
-            let line = trimmed
-                .chars()
-                .skip_while(|c| {
-                    if *c == '#' {
-                        depth += 1;
-                        true
-                    } else {
-                        false
-                    }
-                }).collect::<String>()
-                .trim_left()
-                .to_owned();
-
-            Ok(ContentM {
-                line : format!("{} <a id=\"user-content-{}\"></a>", s, line.replace(" ", "-").to_lowercase() ) ,
-            })
-        }
-        else {
-            Ok(ContentM {
-                line : s.to_owned(),
-            })
-        }
-    }
-}
-
 pub fn add_markdown_toc( content : &str ) -> Result<String, ApiError> {
+
+    pub struct Heading {
+        pub depth: usize,
+        pub title: String,
+    }
+
     let mut result = String::new();
+    let mut skip = false;
+
+    result.push_str( &format!("# Table of Contents\n") );
 
     content
         .lines()
-        .map(Heading::from_str)
-        .filter_map(Result::ok)
-        .filter_map(|h| h.format() )
+        .map(|l| {
+            let trimmed = l.trim_right();
+
+            if trimmed.starts_with("```") && !skip { skip = true }
+            else if trimmed.starts_with("```") && skip { skip = false }
+
+            if trimmed.starts_with("#") && !skip {
+                let mut depth = 0usize;
+                let title = trimmed
+                    .chars()
+                    .skip_while(|c| {
+                        if *c == '#' { depth += 1;  true }
+                        else { false }
+                    }).collect::<String>()
+                    .trim_left()
+                    .to_owned();
+
+                Some( Heading {
+                    depth: depth - 1,
+                    title,
+                })
+            }
+            else {
+                None
+            }
+        })
+        .filter_map(|h| {
+            let x = h?;
+            Some( format!(
+                "{} {} {}",
+                " ".repeat(2)
+                    .repeat(x.depth),
+                "*",
+                format!("[{}](#user-content-{})", &x.title, &x.title.replace(" ", "-").to_lowercase() )
+            ))
+
+         } )
         .for_each(|l| {
-            result.push_str( &l );
-            result.push('\n');
+            result.push_str( &format!("{}\n", l) );
         });
 
     result.push('\n');
 
     content
         .lines()
-        .map(ContentM::from_str)
-        .filter_map(Result::ok)
+        .map(|l| {
+            let trimmed = l.trim_right();
+
+            if trimmed.starts_with("```") && !skip { skip = true }
+            else if trimmed.starts_with("```") && skip { skip = false }
+
+            if trimmed.starts_with("#") && !skip {
+                let line = trimmed
+                    .chars()
+                    .skip_while(|c| {
+                        if *c == '#' { true }
+                        else { false }
+                    }
+                    ).collect::<String>()
+                    .trim_left()
+                    .to_owned();
+
+                format!("{} <a id=\"user-content-{}\"></a>", l, line.replace(" ", "-").to_lowercase() ) 
+            }
+            else { l.to_owned() }
+        })
         .for_each(|l| {
-            //println!("{}", l.line);
-            result.push_str( &l.line );
-            result.push('\n');
+            result.push_str( &format!("{}\n", l) );
         });
-    
-    println!("{}", result);
 
     Ok( result )
 }
 
-pub fn markdown_to_html( markdown : &str ) -> Result<String, ApiError> {
-    let mut options = Options::empty();
+struct EventIter<'a> {
+	p :Parser<'a>,
+}
 
+impl<'a> EventIter<'a> {
+	pub fn new(p :Parser<'a>) -> Self {
+		EventIter {
+			p,
+		}
+	}
+}
+
+impl<'a> Iterator for EventIter<'a> {
+	type Item = Event<'a>;
+
+	fn next(&mut self) -> Option<Self::Item> {
+        let next = if let Some(v) = self.p.next() {
+			v
+		} else {
+			return None;
+        };
+
+		if let &Event::Start(Tag::CodeBlock(_)) = &next {
+			// Codeblock time!
+            let mut text_buf = String::new();
+            let mut next = self.p.next();
+            
+			loop {
+				if let Some(Event::Text(ref s)) = next {
+                    text_buf += s;
+				} else {
+					break;
+				}
+				next = self.p.next();
+			}
+			match &next {
+				&Some(Event::End(Tag::CodeBlock(_))) => {
+                    let mut vec: Vec<&str> = text_buf.split(|c| c == '\r' || c == '\n').collect();
+                    let mut lang : String = vec.first()?.to_owned().to_owned();
+                    lang.retain(|c| !c.is_whitespace());
+
+                    let ss = SyntaxSet::load_defaults_newlines();
+                    let ts = ThemeSet::load_defaults();
+
+                    let sr = match ss.find_syntax_by_extension(&lang) {
+                        Some(x) => { vec.drain(0..1); x },
+                        None => ss.find_syntax_by_extension("rs") ?,
+                    };
+                    
+                    let theme = &ts.themes["base16-ocean.dark"];
+
+                    return Some(
+                        Event::Html( highlighted_html_for_string( &vec.join("\n") , &ss, &sr, theme).into() )
+                    );
+				},
+				_ => panic!("Unexpected element inside codeblock mode {:?}", next),
+			}
+        }
+        
+		Some(next)
+	}
+}
+
+pub fn render_markdown(markdown :&str) -> String {
+    let mut options = Options::empty();
     options.insert(Options::ENABLE_STRIKETHROUGH);
     options.insert(Options::ENABLE_TABLES);
     //options.insert(Options::ENABLE_FOOTNOTES);
 
-    let parser = Parser::new_ext(markdown, options);
-
-    let mut html_output: String = String::with_capacity(markdown.len() * 3 / 2);
-    html::push_html(&mut html_output, parser);
-    Ok( html_output )
+    let p = Parser::new_ext(markdown, options);
+	let ev_it = EventIter::new(p);
+	let mut unsafe_html = String::new();
+	html::push_html(&mut unsafe_html, ev_it);
+	unsafe_html
 }
 
 
@@ -188,7 +221,7 @@ pub fn post_template( id : &str ) -> Result<String, ApiError> {
     let posts_content =
         PostContent {
             title : &post.title,
-            body :  &markdown_to_html( &add_markdown_toc( &post.body ) ? ) ? ,
+            body :  &render_markdown( &add_markdown_toc( &post.body ) ? ) ,
             date : format!("{}", &post.created_at),
         };
 
