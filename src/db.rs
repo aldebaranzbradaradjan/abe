@@ -215,6 +215,7 @@ struct JsonBrancaToken {
 }
 
 pub fn create_token( user : User ) -> Result<String, ApiError> {
+
     let key = user.token_key.as_bytes().to_vec();
     let branca =  Branca::new(&key) ? ;
 

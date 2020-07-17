@@ -14,18 +14,98 @@ html, body {
     font-size: 18px;
 }
 
-aside {
-    background: #282828;
-    background: linear-gradient(to bottom, #111 0%,#343434 100%);
+menu {
+    background: #2b303b;
     color: #ccc;
     width: 100%;
     box-shadow: 0 0 15px rgba(0,0,0,0.4);
     text-align: center;
     padding: 2em 0;
+    margin: 0;
+}
+
+menu #toc_header {
+    color: #ccc;
+    display: block;
+    font-weight: bold;
+    text-align:center;
+    top: 50%;
+    height: 50px;
+}
+
+menu a.face img {
+    width: 130px;
+    height: 130px;
+    padding: 5px;
+    border: 3px solid #d04e47;
+    border-radius: 75px;
+    transition: box-shadow 0.5s;
+}
+
+menu a {
+    text-decoration: none;
+    outline: none;
+}
+
+menu a.icon {
+    margin: 0 2px;
+    padding: 4px;
+    border-radius: 15px;
+    display: inline-block;
+    width: 24px;
+    height: 25px;
+    background: #000;
+}
+
+menu a.icon svg {
+    fill: #ccc;
+    width: 16px;
+    height: 16px;
+    padding: 4px;
+}
+
+menu a.icon:hover svg {
+    fill: #fff;
+}
+
+menu a.face:hover img {
+    box-shadow: 0 0 40px #d04e47;
+}
+
+menu toc {
+    position: fixed; /* Set the navbar to fixed position */
+    top: 0; /* Position the navbar at the top of the page */
+    left :0;
+    width: 100%; /* Full width */
+    padding : 0;
+    margin: 0;
+    text-align: center;
+    background: #2b303b;
+    box-shadow: 0 0 15px rgba(0,0,0,0.4);
+}
+
+menu toc ul {
+    padding : 0;
+}
+
+menu toc li::marker {
+  display : none;
+}
+
+menu toc a {
+    text-decoration:none; 
+    color: #ba514b;
+    transition: color 0.3s ease-in-out;
+}
+
+menu toc a:hover {
+    color: #f14239;
+    font-weight: bold;
 }
 
 article {
     line-height: 1.4em;
+    margin-top: 30px; /* Add a top margin to avoid content overlay */
 }
 
 article, section {
@@ -44,49 +124,6 @@ h1, h2, h3, h4, h5, h6 {
     padding: 0;
 }
 
-aside a.face img {
-    width: 130px;
-    height: 130px;
-    padding: 5px;
-    border: 3px solid #d04e47;
-    border-radius: 75px;
-    transition: box-shadow 0.5s;
-}
-
-aside a {
-    text-decoration: none;
-    outline: none;
-}
-
-aside a.icon {
-    margin: 0 2px;
-    padding: 4px;
-    border-radius: 15px;
-    display: inline-block;
-    width: 24px;
-    height: 25px;
-    background: #000;
-}
-
-aside a.icon svg {
-    fill: #ccc;
-    width: 16px;
-    height: 16px;
-    padding: 4px;
-}
-
-aside a.icon:hover svg {
-    fill: #fff;
-}
-
-aside a.face:hover img {
-    box-shadow: 0 0 40px #d04e47;
-}
-
-aside h1 {
-    color: #fff;
-    margin: 1em 0 0.3em;
-}
 
 article a {
     text-decoration:none; 
@@ -118,20 +155,25 @@ article header time, .index article time {
     color: #888;
 }
 
-aside em {
+menu em {
     color: #777;
     font-style: normal;
 }
 
-aside hr {
+menu hr {
     margin: 1.5em auto;
     width: 100px;
     border: none;
     border-bottom: 1px solid #d04e47;
 }
 
-aside p {
+menu p {
     padding: 0 2em;
+}
+
+img[src*='#center'] { 
+    display: block;
+    margin: auto;
 }
 
 code, pre {
@@ -157,42 +199,46 @@ pre code {
     color: inherit;
 }
 
-pre s, pre a, pre em, pre b, pre u, pre i {
-    text-decoration: none;
-    font-weight: inherit;
-    font-style: inherit;
-}
-
-pre code.language-text {
-    color: #000;
-}
-
-pre a { color: #22b189; }
-pre i { color: #000; }
-pre u { color: #2574ce; }
-pre b { color: #d72222; }
-pre em { color: #999; font-style: italic; }
-
-img[src*='#center'] { 
-    display: block;
-    margin: auto;
-}
-
 @media screen and (min-width: 1000px) {
     body {
-        padding-left: 360px;
+        padding-left: 300px;
     }
 
-    aside {
-        width: 360px;
+    menu {
+        width: 300px;
         position: fixed;
         left: 0;
-        top: 0;
+        bottom: 0;
         height: 100vh;
         padding: 0;
+        margin: 0;
     }
 
-    aside a.face img {
+    menu footer {
+        width: 100%;
+        position:absolute;
+        bottom:10px;
+    }
+
+    menu toc {
+        display: unset;
+        text-align: left;
+        position:absolute;
+        left: 10px;
+        width : 280px;
+        background-color: transparent;
+        box-shadow: unset;
+    }
+
+    menu toc ul {
+        padding-left: 30px;
+    }
+
+    menu toc li::marker {
+        display :block;
+    }
+
+    menu a.face img {
         margin-top: 10vh;
     }
 
@@ -203,7 +249,9 @@ img[src*='#center'] {
 </style>
 </head>
 <body>
+
 <article>
+
     <header>
         <h1>{{title}}</h1>
         <time>Posted on {{date}}</time>
@@ -212,14 +260,43 @@ img[src*='#center'] {
     <p>{{{body}}}</p>
 
 </article>
-<aside>
-    <a href="../home" class="face"><img src="/static/alde.jpg" /></a>
-    <h1>Hi, I'm Alde</h1>
-    <em>IPA: /ˈAl.d.&e.</em>
-    <hr>
-    <p>I have stolen the design of this page here :</p>
-    <p>https://maciej.codes/</p>
-    <hr>
-</aside>
+
+<menu>
+
+    <toc>
+        <a class="toc_header" id="toc_header" href="http://www.google.com">Sommaire</a> 
+        <div id="toc">
+            {{{toc}}}
+        </div>
+    </toc>
+
+    <footer>
+        <a href="../home" class="face"><img src="/static/alde.jpg" /></a>
+        <p>Powered by Abe</p>
+    </footer>
+</menu>
+
+
+<script>
+    function display_or_not_toc() {
+      var x = document.getElementById("toc");
+      if (x.style.display === "none") {
+        x.style.display = "block";
+      } else {
+        x.style.display = "none";
+      }
+    }
+
+    window.onload = function() {
+        var a = document.getElementById("toc_header");
+
+        a.onclick = function() {
+            display_or_not_toc();
+            return false;
+        }
+    }
+
+</script>
+
 </body>
 </html>

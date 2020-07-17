@@ -24,6 +24,7 @@ use syntect::html::highlighted_html_for_string;
 #[derive(Content)]
 struct PostContent<'a> {
     title: &'a str,
+    toc: &'a str,
     body: &'a str,
     date: String,
 }
@@ -49,17 +50,18 @@ struct LoginContent<'a> {
     title: &'a str,
 }
 
-pub fn add_markdown_toc( content : &str ) -> Result<String, ApiError> {
+pub fn add_markdown_toc( content : &str ) -> Result<Vec<String>, ApiError> {
 
     pub struct Heading {
         pub depth: usize,
         pub title: String,
     }
 
-    let mut result = String::new();
+    let mut body = String::new();
+    let mut toc = String::new();
     let mut skip = false;
 
-    result.push_str( &format!("# Table of Contents\n") );
+    //result.push_str( &format!("# Table of Contents\n") );
 
     content
         .lines()
@@ -101,10 +103,8 @@ pub fn add_markdown_toc( content : &str ) -> Result<String, ApiError> {
 
          } )
         .for_each(|l| {
-            result.push_str( &format!("{}\n", l) );
+            toc.push_str( &format!("{}\n", l) );
         });
-
-    result.push('\n');
 
     content
         .lines()
@@ -125,15 +125,15 @@ pub fn add_markdown_toc( content : &str ) -> Result<String, ApiError> {
                     .trim_left()
                     .to_owned();
 
-                format!("{} <a id=\"user-content-{}\"></a>", l, line.replace(" ", "-").to_lowercase() ) 
+                format!("<a class=\"anchor-content\" id=\"user-content-{}\"></a>\n{}", line.replace(" ", "-").to_lowercase(), l ) 
             }
             else { l.to_owned() }
         })
         .for_each(|l| {
-            result.push_str( &format!("{}\n", l) );
+            body.push_str( &format!("{}\n", l) );
         });
 
-    Ok( result )
+    Ok( vec!(toc, body) )
 }
 
 struct EventIter<'a> {
@@ -215,13 +215,16 @@ pub fn render_markdown(markdown :&str) -> String {
 
 pub fn post_template( id : &str ) -> Result<String, ApiError> {
 
-    let tpl = Template::from_file("./src/templates/post_page.html") ? ;
+    let tpl = Template::from_file("./src/templates/post_page_2.html") ? ;
     let post = get_post( id ) ? ;
+
+    let post_vec = add_markdown_toc( &post.body ) ?;
 
     let posts_content =
         PostContent {
             title : &post.title,
-            body :  &render_markdown( &add_markdown_toc( &post.body ) ? ) ,
+            toc :  &render_markdown( &post_vec[0] ),
+            body :  &render_markdown( &post_vec[1] ),
             date : format!("{}", &post.created_at),
         };
 

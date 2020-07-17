@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>{{title}}</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<style type="text/css">
+
+html, body {
+    background: rgb(255,255,255);
+    background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(235,219,194,1) 100%);
+    color: #333;
+    margin:0;
+    padding:0;
+    scroll-behavior: smooth;
+}
+
+.anchor-content{
+    margin-top: -2em;
+    padding-top: 2em;
+}
+
+#main{
+    min-height:100%;
+    width:100%;
+    margin:0 auto;
+    position:relative;
+}
+
+.toc {
+    padding:10px;
+}
+
+.toc a {
+    text-decoration:none; 
+    color: #ba514b;
+    transition: color 0.3s ease-in-out;
+}
+
+.toc a:hover {
+    color: #f14239;
+    animation: glow 1s ease-in-out infinite alternate;
+}
+
+
+@-webkit-keyframes glow {
+from {
+text-shadow: 0px 0px 3px rgba(156, 90, 90, 0.1);
+}
+
+to {
+text-shadow: 0px 0px 5px rgb(156, 90, 90, 0.7);
+}
+}
+
+article {
+    line-height: 1.4em;
+}
+
+article, section {
+    margin: 0 auto;
+    max-width: 66em;
+    padding-top: 5em;
+    padding-bottom: 4em;
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
+article h1, article h2, article h3, article h4, article h5, article h6 {
+    margin: 1em 0 0.5em;
+    line-height: initial;
+}
+
+.index article {
+    margin: 3em 0;
+    padding: 0;
+}
+
+article a {
+    text-decoration:none; 
+    color: #d04e47;
+}
+
+article header h1, .index header h1 {
+    font-size: 3em;
+    margin: 0 0 0.1em;
+}
+
+.index article h2 {
+    margin: 0 0 0.3em;
+}
+
+.index article h2 a {
+    color: #000;
+    text-decoration: none;
+    transition: color 0.3s ease-in-out;
+}
+
+.index article h2 a:hover {
+    color: #d04e47;
+}
+
+article header time, .index article time {
+    display: block;
+    margin: 0 0 2em;
+    color: #888;
+}
+
+img[src*='#center'] { 
+    display: block;
+    margin: auto;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+code, pre {
+    font-size: 16px;
+    line-height: 22px;
+    border-radius: 0.3em;
+    background: #f8f8f8;
+}
+
+code {
+    color: #000;
+    padding: 0.1em 0.3em;
+}
+
+pre {
+    color: #666;
+    padding: 1em;
+    overflow-x: auto;
+}
+
+pre code {
+    padding: 0;
+    color: inherit;
+}
+
+@media screen and (max-width: 180px) {
+}
+
+</style>
+</head>
+<body>
+
+    <div id="main">
+
+        <div class="w3-top">
+            <div class="w3-bar w3-black w3-card">
+            <a class="w3-bar-item w3-button w3-padding-large w3-hide-large w3-right" href="javascript:void(0)" onclick="show_or_not_nav()" title="Toggle Navigation Menu"><i class="fa fa-bars"></i></a>
+            <a href="../home" class="w3-bar-item w3-button w3-padding-large"><i class="fa fa-home"></i></a>
+            <div class="w3-dropdown-hover w3-hide-small w3-hide-medium">
+                <button class="w3-padding-large w3-button">TOC <i class="fa fa-caret-down"></i></button>     
+                <div class="w3-dropdown-content w3-bar-block w3-card-4 toc">
+                    <h4><a href="#user-content-title">{{title}}</a></h4>
+                    {{{toc}}}
+                </div>
+            </div>
+            <a href="javascript:void(0)" class="w3-padding-large w3-hover-red w3-hide-small w3-hide-medium w3-right"><i class="fa fa-search"></i></a>
+            </div>
+        </div>
+        
+        <div id="nav-little" class="w3-black w3-hide w3-top toc" style="margin-top:46px; overflow: auto; max-height: 90%; ">
+            <h4><a href="#user-content-title">{{title}}</a></h4>
+            {{{toc}}}
+        </div>
+
+        <article>
+
+            <header>
+                <h1><a class="anchor-content" id="user-content-title"></a> {{title}}</h1>
+                <time>Posted on {{date}}</time>
+            </header>
+
+            <p>{{{body}}}</p>
+
+        </article>
+
+        <footer class="w3-container w3-padding-16 w3-center w3-opacity w3-black w3-xlarge">
+            <i class="fa fa-facebook-official w3-hover-opacity"></i>
+            <i class="fa fa-instagram w3-hover-opacity"></i>
+            <i class="fa fa-snapchat w3-hover-opacity"></i>
+            <i class="fa fa-pinterest-p w3-hover-opacity"></i>
+            <i class="fa fa-twitter w3-hover-opacity"></i>
+            <i class="fa fa-linkedin w3-hover-opacity"></i>
+            <p class="w3-medium">Powered by <a href="https://github.com/aldebaranzbradaradjan/abe" target="_blank">Abe</a> and the glorious <a href="https://www.w3schools.com/w3css/default.asp" target="_blank">w3.css</a></p>
+        </footer>
+
+    </div>
+
+
+<script>
+    
+    // Used to toggle the menu on small screens when clicking on the menu button
+    function show_or_not_nav() {
+        var x = document.getElementById("nav-little");
+        if (x.className.indexOf("w3-show") == -1) {
+            x.className += " w3-show";
+        } else { 
+            x.className = x.className.replace(" w3-show", "");
+        }
+    }
+
+    window.onload = function() {
+
+        var each = document.getElementById("nav-little").getElementsByTagName("a");
+
+        for (var i=0, l=each.length; i<l; i++){
+            each[i].onclick = function () {
+                show_or_not_nav();
+                return true;
+            }
+        }
+
+    }
+
+</script>
+
+</body>
+</html>
