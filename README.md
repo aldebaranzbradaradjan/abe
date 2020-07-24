@@ -12,7 +12,8 @@ cargo build
 ```
 
 ## Database
-```diesel setup
+```bash
+diesel setup
 ```
 
 ## Migrations
@@ -31,7 +32,8 @@ systemfd --no-pid -s http::8088 -- cargo watch -x run
 # Use
 
 We need to create a user (for now, all the users have all rights) :
-```curl -i -H "Content-Type: application/json" -X POST -d '{ "email" : "admin@mail.internet", "username" : "admin", "password" : "admin"  }'
+```
+curl -i -H "Content-Type: application/json" -X POST -d '{ "email" : "admin@mail.internet", "username" : "admin", "password" : "admin"  }'
 ```
 
 Now, we can go to the login page to create a branca token : http://127.0.0.1:8088/admin/login
