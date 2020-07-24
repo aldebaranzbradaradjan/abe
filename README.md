@@ -1,10 +1,9 @@
 # abe
-Another blog engine written in Rust with the Actix web framework. This program is only for learning and you should probably not use it :)
+Another blog engine written in Rust with the Actix web framework; made to learn :)
 
 # Instruction
 
-To compile you need and valid Rust environnement : https://rustup.rs/
-And also the diesel_cli, read this : http://diesel.rs/guides/getting-started/
+To compile we need an valid Rust environnement : https://rustup.rs/. We also the diesel_cli, read this : http://diesel.rs/guides/getting-started/, and systemfd : https://github.com/mitsuhiko/systemfd.
 
 ## Build
 ```bash
