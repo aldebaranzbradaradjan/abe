@@ -21,6 +21,11 @@ use syntect::parsing::SyntaxSet;
 use syntect::highlighting::ThemeSet;
 use syntect::html::highlighted_html_for_string;
 
+/*use std::time::{
+    Duration,
+    Instant
+};*/
+
 #[derive(Content)]
 struct PostContent<'a> {
     title: &'a str,
@@ -66,7 +71,7 @@ pub fn add_markdown_toc( content : &str ) -> Result<Vec<String>, ApiError> {
     content
         .lines()
         .map(|l| {
-            let trimmed = l.trim_right();
+            let trimmed = l.trim_end();
 
             if trimmed.starts_with("```") && !skip { skip = true }
             else if trimmed.starts_with("```") && skip { skip = false }
@@ -79,7 +84,7 @@ pub fn add_markdown_toc( content : &str ) -> Result<Vec<String>, ApiError> {
                         if *c == '#' { depth += 1;  true }
                         else { false }
                     }).collect::<String>()
-                    .trim_left()
+                    .trim_start()
                     .to_owned();
 
                 Some( Heading {
@@ -109,7 +114,7 @@ pub fn add_markdown_toc( content : &str ) -> Result<Vec<String>, ApiError> {
     content
         .lines()
         .map(|l| {
-            let trimmed = l.trim_right();
+            let trimmed = l.trim_end();
 
             if trimmed.starts_with("```") && !skip { skip = true }
             else if trimmed.starts_with("```") && skip { skip = false }
@@ -122,7 +127,7 @@ pub fn add_markdown_toc( content : &str ) -> Result<Vec<String>, ApiError> {
                         else { false }
                     }
                     ).collect::<String>()
-                    .trim_left()
+                    .trim_start()
                     .to_owned();
 
                 format!("<a class=\"anchor-content\" id=\"user-content-{}\"></a>\n{}", line.replace(" ", "-").to_lowercase(), l ) 
@@ -137,13 +142,17 @@ pub fn add_markdown_toc( content : &str ) -> Result<Vec<String>, ApiError> {
 }
 
 struct EventIter<'a> {
-	p :Parser<'a>,
+    p :Parser<'a>,
+    ss: SyntaxSet,
+    ts: ThemeSet,
 }
 
 impl<'a> EventIter<'a> {
 	pub fn new(p :Parser<'a>) -> Self {
 		EventIter {
-			p,
+            p : p,
+            ss : SyntaxSet::load_defaults_newlines(),
+            ts : ThemeSet::load_defaults(),
 		}
 	}
 }
@@ -152,6 +161,7 @@ impl<'a> Iterator for EventIter<'a> {
 	type Item = Event<'a>;
 
 	fn next(&mut self) -> Option<Self::Item> {
+
         let next = if let Some(v) = self.p.next() {
 			v
 		} else {
@@ -159,6 +169,7 @@ impl<'a> Iterator for EventIter<'a> {
         };
 
 		if let &Event::Start(Tag::CodeBlock(_)) = &next {
+            
 			// Codeblock time!
             let mut text_buf = String::new();
             let mut next = self.p.next();
@@ -173,42 +184,52 @@ impl<'a> Iterator for EventIter<'a> {
 			}
 			match &next {
 				&Some(Event::End(Tag::CodeBlock(_))) => {
+                    
                     let mut vec: Vec<&str> = text_buf.split(|c| c == '\r' || c == '\n').collect();
                     let mut lang : String = vec.first()?.to_owned().to_owned();
                     lang.retain(|c| !c.is_whitespace());
 
-                    let ss = SyntaxSet::load_defaults_newlines();
-                    let ts = ThemeSet::load_defaults();
-
-                    let sr = match ss.find_syntax_by_extension(&lang) {
+                    let sr = match self.ss.find_syntax_by_extension(&lang) {
                         Some(x) => { vec.drain(0..1); x },
-                        None => ss.find_syntax_by_extension("rs") ?,
+                        None => self.ss.find_syntax_by_extension("rs") ?,
                     };
-                    
-                    let theme = &ts.themes["base16-ocean.dark"];
 
                     return Some(
-                        Event::Html( highlighted_html_for_string( &vec.join("\n") , &ss, &sr, theme).into() )
+                        Event::Html( highlighted_html_for_string (
+                            &vec.join("\n"),
+                            &self.ss,
+                            &sr,
+                            &self.ts.themes["base16-ocean.dark"]
+                        ).into() )
                     );
 				},
 				_ => panic!("Unexpected element inside codeblock mode {:?}", next),
 			}
         }
         
+
 		Some(next)
 	}
 }
 
-pub fn render_markdown(markdown :&str) -> String {
+pub fn render_markdown(markdown :&str, highlighting : bool) -> String {
+   
     let mut options = Options::empty();
     options.insert(Options::ENABLE_STRIKETHROUGH);
     options.insert(Options::ENABLE_TABLES);
     //options.insert(Options::ENABLE_FOOTNOTES);
 
+    let mut unsafe_html = String::new();
     let p = Parser::new_ext(markdown, options);
-	let ev_it = EventIter::new(p);
-	let mut unsafe_html = String::new();
-	html::push_html(&mut unsafe_html, ev_it);
+
+    if highlighting {
+        let ev_it = EventIter::new(p);
+        html::push_html(&mut unsafe_html, ev_it);
+    }
+    else {
+        html::push_html(&mut unsafe_html, p);
+    }
+
 	unsafe_html
 }
 
@@ -223,8 +244,8 @@ pub fn post_template( id : &str ) -> Result<String, ApiError> {
     let posts_content =
         PostContent {
             title : &post.title,
-            toc :  &render_markdown( &post_vec[0] ),
-            body :  &render_markdown( &post_vec[1] ),
+            toc :  &render_markdown( &post_vec[0] , false),
+            body :  &render_markdown( &post_vec[1] , true),
             date : format!("{}", &post.created_at),
         };
 
