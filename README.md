@@ -32,10 +32,10 @@ systemfd --no-pid -s http::8088 -- cargo watch -x run
 
 We need to create a user (for now, all the users have all rights) :
 ```
-curl -i -H "Content-Type: application/json" -X POST -d '{ "email" : "admin@mail.internet", "username" : "admin", "password" : "admin"  }'
+curl -i -H "Content-Type: application/json" -X POST -d '{ "email" : "admin@mail.internet", "username" : "admin", "password" : "admin"  }' 127.0.0.1:8088/api/v1/user/create
 ```
 
-Now, we can go to the login page to create a branca token : 0.0.0.0:8088/admin/login
-Then you can use the admin panel : 0.0.0.0:8088/admin/home to add and manage posts.
+Now, we can go to the login page to create a branca token : `127.0.0.1:8088/admin/login`
+Then you can use the admin panel : `127.0.0.1:8088/admin/home` to add and manage posts.
 
-To see the blog : 0.0.0.0:8088/site/home
+To see the blog : `127.0.0.1:8088/site/home`
