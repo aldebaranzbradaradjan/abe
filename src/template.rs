@@ -66,7 +66,7 @@ pub fn add_markdown_toc( content : &str ) -> Result<Vec<String>, ApiError> {
     content
         .lines()
         .map(|l| {
-            let trimmed = l.trim_right();
+            let trimmed = l.trim_end();
 
             if trimmed.starts_with("```") && !skip { skip = true }
             else if trimmed.starts_with("```") && skip { skip = false }
@@ -79,7 +79,7 @@ pub fn add_markdown_toc( content : &str ) -> Result<Vec<String>, ApiError> {
                         if *c == '#' { depth += 1;  true }
                         else { false }
                     }).collect::<String>()
-                    .trim_left()
+                    .trim_start()
                     .to_owned();
 
                 Some( Heading {
@@ -109,7 +109,7 @@ pub fn add_markdown_toc( content : &str ) -> Result<Vec<String>, ApiError> {
     content
         .lines()
         .map(|l| {
-            let trimmed = l.trim_right();
+            let trimmed = l.trim_end();
 
             if trimmed.starts_with("```") && !skip { skip = true }
             else if trimmed.starts_with("```") && skip { skip = false }
@@ -122,7 +122,7 @@ pub fn add_markdown_toc( content : &str ) -> Result<Vec<String>, ApiError> {
                         else { false }
                     }
                     ).collect::<String>()
-                    .trim_left()
+                    .trim_start()
                     .to_owned();
 
                 format!("<a class=\"anchor-content\" id=\"user-content-{}\"></a>\n{}", line.replace(" ", "-").to_lowercase(), l ) 
@@ -174,6 +174,7 @@ impl<'a> Iterator for EventIter<'a> {
 			match &next {
 				&Some(Event::End(Tag::CodeBlock(_))) => {
                     let mut vec: Vec<&str> = text_buf.split(|c| c == '\r' || c == '\n').collect();
+                    
                     let mut lang : String = vec.first()?.to_owned().to_owned();
                     lang.retain(|c| !c.is_whitespace());
 

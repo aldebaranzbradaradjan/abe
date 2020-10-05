@@ -72,6 +72,7 @@ fn main() -> std::io::Result<()> {
 
                     // POST routes
                     .service(
+
                         web::scope("/post")
                             .route("", web::get().to( r_get_posts ))
                             .route("", web::post().to( r_create_post ))
@@ -118,7 +119,7 @@ fn main() -> std::io::Result<()> {
     server = if let Some(l) = listenfd.take_tcp_listener(0).unwrap() {
         server.listen(l)?
     } else {
-        server.bind("0.0.0.0:8088") ?
+        server.bind("127.0.0.1:8080") ?
     };
 
     server.run().await
