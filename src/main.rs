@@ -1,3 +1,6 @@
+use actix_files::Files;
+use actix_web::{middleware, web, App, HttpServer};
+
 #[macro_use]
 extern crate diesel;
 extern crate dotenv;
@@ -6,126 +9,74 @@ extern crate dotenv;
 extern crate serde_derive;
 extern crate serde_json;
 
-#[macro_use]
-extern crate validator_derive;
-extern crate validator;
+extern crate chrono;
 
-extern crate log;
+use dotenv::dotenv;
+use std::env;
 
-use actix_web::{
-    web,
-    App,
-    HttpServer,
-    middleware::{ 
-        Logger
-    }
-};
-
-use listenfd::ListenFd;
-use env_logger::Env;
-use actix_files::Files;
-
-mod branca_session;
-mod handlers;
 mod db;
 mod errors;
-mod template;
-mod validate;
+mod handlers;
+mod mails;
+mod middlewares;
+mod models;
+mod templates;
 
-use crate::handlers::*;
+use crate::db as database;
+use crate::handlers as handler;
 
-#[actix_rt::main]
-async
-fn main() -> std::io::Result<()> {
-    
-    env_logger::from_env(Env::default().default_filter_or("info")).init();
-    let mut listenfd = ListenFd::from_env();
+use actix::prelude::*;
 
-    let mut server = HttpServer::new(|| {
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
+    dotenv().ok();
+    env_logger::init();
+
+    // ASCII art banner always looks cool
+    // https://www.patorjk.com/software/taag/#p=display&h=0&v=0&f=Bloody&t=Skeleton
+    println!(
+        "
+        ▄▄▄       ▄▄▄▄   ▓█████ 
+        ▒████▄    ▓█████▄ ▓█   ▀ 
+        ▒██  ▀█▄  ▒██▒ ▄██▒███   
+        ░██▄▄▄▄██ ▒██░█▀  ▒▓█  ▄ 
+         ▓█   ▓██▒░▓█  ▀█▓░▒████▒
+         ▒▒   ▓▒█░░▒▓███▀▒░░ ▒░ ░
+          ▒   ▒▒ ░▒░▒   ░  ░ ░  ░
+          ░   ▒    ░    ░    ░   
+              ░  ░ ░         ░  ░
+                        ░        
+                               
+        VERSION : DEV 0.1.0     
+        Your server is up and running at http://127.0.0.1:8080\n
+    "
+    );
+
+    let pool = database::init_pool().expect("Failed to create pool");
+    let postman = mails::Postman.start();
+
+    HttpServer::new(move || {
         App::new()
-
-            .data(web::JsonConfig::default().limit(4096))
-            .wrap(Logger::default())
-            .wrap(Logger::new("%a %{User-Agent}i"))
-
-            .service(
-                web::scope("/site")
-                    .route("/post/{id}", web::get().to( r_post_template ))
-                    .route("/home", web::get().to( r_home_template ))
-            )
-
-            .service(
-                web::scope("/admin")
-                    // Lock down routes with Branca Middleware
-                    .wrap(branca_session::BrancaSession)
-
-                    .route("/login", web::get().to( r_login_template ))
-                    .route("/home", web::get().to( r_home_admin_template ))
-                    .route("/new", web::get().to( r_new_admin_template ))
-                    .route("/edit/{id}", web::get().to( r_edit_admin_template ))
-            )
-
+            // add the pool to app state
+            .data(pool.clone())
+            // insert actor postman
+            .data(postman.clone())
             .service(
                 web::scope("/api/v1")
-                    // Lock down routes with Branca Middleware
-                    .wrap(branca_session::BrancaSession) 
-
-                    // POST routes
-                    .service(
-
-                        web::scope("/post")
-                            .route("", web::get().to( r_get_posts ))
-                            .route("", web::post().to( r_create_post ))
-                            .route("/pending", web::get().to( r_get_pending_posts ))
-                            .route("/publish/{id}", web::put().to( r_publish ))
-                            .route("/{id}", web::get().to( r_get_post ))
-                            .route("/{id}", web::put().to( r_update_post ))
-                            .route("/{id}", web::delete().to( r_delete_post ))
-                    )
-
-                    // AUTH routes
-                    .service(
-                        web::scope("/auth")
-                            .route("/login", web::post().to( r_auth ))
-                            //.route("/logout", web::get().to(logout)),
-                    )
-
-                    // USER routes
-                    .service(
-                        web::scope("/user")
-                            .route("", web::get().to( r_get_users ))
-                            .route("/{id}", web::get().to( r_get_user ))
-                            //.route("/{id}", web::put().to(update_user))
-                            //.route("/{id}", web::delete().to(delete_user))
-                            .route("/create", web::post().to( r_register_user ))
-                    ),
+                    .configure(handler::users::configure)
+                    .configure(handler::posts::configure),
             )
-
-            // Serve secure static files from the static-private folder
-            .service(
-                web::scope("/secure-static").wrap(branca_session::BrancaSession).service(
-                    Files::new("", "./secure-static")
-                ),
-            )
-            // Serve public static files from the static folder
-            .service(
-                web::scope("/static").default_service(
-                    Files::new("", "./static").show_files_listing()
-                ),
-            )
-
-    });
-
-    server = if let Some(l) = listenfd.take_tcp_listener(0).unwrap() {
-        server.listen(l)?
-    } else {
-<<<<<<< HEAD
-        server.bind("127.0.0.1:8080") ?
-=======
-        server.bind("127.0.0.1:8088") ?
->>>>>>> 6aedf3b7c13b860353eec2621b143a12e3118165
-    };
-
-    server.run().await
-
+            .configure(handler::dashboard::configure)
+            .configure(handler::blog::configure)
+            // PUBLICS FILES
+            .service(Files::new(
+                "/public",
+                env::var("PUBLIC_PATH").expect("PUBLIC_PATH must be set"),
+            ))
+            // enable logger - always register actix-web Logger middleware last
+            .wrap(middleware::Logger::default())
+    })
+    .bind("127.0.0.1:8080")?
+    .run()
+    .await
 }

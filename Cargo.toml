@@ -1,45 +1,56 @@
 [package]
-name = "actix-diesel-sqlite"
+name = "skeleton-api"
 version = "0.1.0"
-authors = ["Florian <florian.zebidi@icaretech.fr>"]
+authors = ["Aldebaran <e.k.florian@gmail.com>"]
 edition = "2018"
 
+default-run = "api"
+
+[[bin]]
+name = "api"
+path = "src/main.rs"
+
+#[[bin]]
+#name = "artisan"
+#path = "src/artisan.rs"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
-listenfd = "0.3"
+actix = "0.10.0"
+actix-web = "3.3.0"
+actix-service = "1.0.6"
+actix-files = "0.5.0"
 
-actix-web = "2.0.0"
-actix-service = "1.0.5"
-actix-session = "0.3"
-actix-rt = "1.1.1"
-actix-files = "0.2.1"
+r2d2 = "0.8.9"
+diesel = { version = "1.4.5", features = ["postgres", "chrono", "r2d2"] }
+log = "0.4.11"
+env_logger = "0.8.2"
+dotenv = "0.15.0"
 
-serde = "1.0"
-serde_json = "1.0"
-serde_derive = "1.0"
+serde = "1.0.117"
+serde_json = "1.0.59"
+serde_derive = "1.0.117"
+derive_more = "0.99.11"
 
-derive_more = "0.15"
-diesel = { version = "^1.1.0", features = ["sqlite", "chrono"] }
-dotenv = "0.9.0"
-uuid = { version = "0.7", features = ["serde", "v4"] }
+uuid = { version = "0.8.1", features = ["serde", "v4"] }
 rand = "0.7.3"
-bcrypt = "0.7"
-branca = "0.9.0"
-ring = "0.16.13"
-chrono = { version = "0.4", features = ["serde"] }
-futures = "0.3.5"
+bcrypt = "0.9.0"
+branca = "0.10.0"
+ring = "0.16.18"
+time = "0.2.26"
+chrono = { version = "0.4.19", features = ["serde"] }
+futures = "0.3.8"
+tokio = {version = "0.2.*", features = ["full"] }
 failure = "0.1.8"
 
-ramhorns = "0.5"
-pulldown-cmark = { version = "0.7", default-features = false, features = ["simd"] }
-ammonia = "3.1.0"
-syntect = "4.2"
+validator = { version = "0.12.0", features = ["derive"] }
 
-validator = "0.10"
-validator_derive = "0.10"
+structopt = { version = "0.3", default-features = false }
 
-env_logger = "0.7.1"
-log = "0.4.0"
+lettre = "0.9"
+lettre_email = "0.9"
 
-lazy_static = "1.4.0"
+
+ramhorns = "0.11.0"
+pulldown-cmark = { version = "0.8", default-features = false, features = ["simd"] }
+syntect = "4.4"
