@@ -1,5 +1,4 @@
 html, body {
-    background: rgb(34, 19, 53);
     color: rgb(214, 214, 214);
     margin: 0;
     padding: 0;
@@ -24,14 +23,34 @@ html, body {
     --purple: rgb(119, 0, 255);
     --dark-purple: rgb(100, 26, 185);
 
-    scrollbar-color: var(--purple) rgba(0,0,0,0);
-    scrollbar-width: thin;
+    scrollbar-color: var(--purple) rgb(78, 70, 102);
 }
+
+.background-image {
+    z-index: -1;
+    background: rgb(34, 19, 53);
+    background-image: url("https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Cone_Nebula_%28NGC_2264%29_Star-Forming_Pillar_of_Gas_and_Dust.jpg/640px-Cone_Nebula_%28NGC_2264%29_Star-Forming_Pillar_of_Gas_and_Dust.jpg");
+    height: 100vh;
+    width: 100vw;
+    position: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.background-image::before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backdrop-filter: blur(30px); /* apply the blur */
+    pointer-events: none; /* make the overlay click-through */
+  }
 
 ::-webkit-scrollbar {
     height: 12px;
-    width: 3px;
-    background: rgba(0,0,0,0);
+    width: 5px;
+    background: rgb(78, 70, 102);
 }
 
 ::-webkit-scrollbar-thumb {
@@ -67,13 +86,14 @@ a {
 }
 
 .toc {
-    background: rgb(11, 0, 36);
+    background: rgb(11, 0, 36, 0.8);
     padding: 20px;
     
     overflow: hidden scroll;
     overflow-y: auto;
     scrollbar-color: var(--purple) rgba(0,0,0,0);
     scrollbar-width: thin;
+    backdrop-filter: blur(30px);
 }
 
 .toc * {
@@ -95,15 +115,7 @@ a {
 
 .toc a {
     text-decoration:none;
-}
-
-.toc a:link {
     color: var(--purple);
-}
-
-/* visited link */
-.toc a:visited {
-    color: var(--dark-purple);
 }
 
 /* mouse over link */
@@ -119,7 +131,6 @@ a {
     overflow: hidden;
     text-decoration: none;
     color: inherit;
-    background-color: inherit;
     text-align: center;
     cursor: pointer;
     white-space: nowrap;
@@ -129,7 +140,8 @@ a {
 .nav-top {
     display: flex;
     justify-content: space-between;
-    background: rgb(11, 0, 36);
+    background: rgb(11, 0, 36, 0.8);
+    backdrop-filter: blur(30px);
 }
 
 .fixed-top {
@@ -169,7 +181,7 @@ a {
 aside {
     display: flex;
     flex-direction: column;
-    background: rgb(11, 0, 36);
+    background: rgb(11, 0, 36, 0.8);
     color: #ccc;
     width: 100%;
     box-shadow: 0 0 15px rgba(0,0,0,0.4);
@@ -178,6 +190,7 @@ aside {
     align-items: center;
     justify-content: center;
     text-align: center;
+    text-shadow: 0px 2px 0.5ex #23004d;
 }
 
 aside h3 {
@@ -194,14 +207,16 @@ aside h3 {
 }
 
 article {
+    background: rgb(46, 22, 77, 0.8);
     line-height: 1.4em;
     text-shadow: 0px 2px 0.5ex #23004d;
+    min-height: calc(100vh - 6em);
 }
 
 article, section {
-    margin: 0 auto;
+    /*margin: 0 auto;*/
     padding: 1.5em;
-    margin-top: 2em;
+    /*margin-top: 2em;*/
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -226,7 +241,7 @@ aside a.face img {
 aside a {
     text-decoration: none;
     outline: none;
-    color: var(--dark-purple);
+    color: var(--purple);
 }
 
 aside a.icon {
@@ -262,6 +277,10 @@ aside h1 {
 article a {
     text-decoration:none; 
     color: var(--light-purple);
+}
+
+article header {
+    padding-top: 2em;
 }
 
 article header h1, .index header h1 {
@@ -392,11 +411,7 @@ img[src*='#center'] {
 
     .aside-toc {
         display: flex;
-        text-align: initial;
-    }
-
-    body {
-        padding-left: 360px;
+        text-align: right;
     }
 
     aside {
@@ -413,6 +428,10 @@ img[src*='#center'] {
 
     aside a.face img {
         margin-top: 3vh;
+    }
+
+    article {
+        margin-left: 360px;
     }
 
     article, .index {
