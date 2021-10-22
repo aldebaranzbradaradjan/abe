@@ -29,23 +29,29 @@ html, body {
 .background-image {
     z-index: -1;
     background: rgb(34, 19, 53);
-    background-image: url("https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Cone_Nebula_%28NGC_2264%29_Star-Forming_Pillar_of_Gas_and_Dust.jpg/640px-Cone_Nebula_%28NGC_2264%29_Star-Forming_Pillar_of_Gas_and_Dust.jpg");
     height: 100vh;
     width: 100vw;
     position: fixed;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
 }
 
-.background-image::before {
-    content: "";
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    backdrop-filter: blur(30px); /* apply the blur */
-    pointer-events: none; /* make the overlay click-through */
-  }
+  @supports (backdrop-filter: blur(30px))
+or (-webkit-backdrop-filter: blur(30px)) {
+    .background-image {
+        background-image: url("https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Cone_Nebula_%28NGC_2264%29_Star-Forming_Pillar_of_Gas_and_Dust.jpg/640px-Cone_Nebula_%28NGC_2264%29_Star-Forming_Pillar_of_Gas_and_Dust.jpg");
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+    
+    .background-image::before {
+        content: "";
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backdrop-filter: blur(30px);
+        pointer-events: none;
+      }
+}
 
 ::-webkit-scrollbar {
     height: 12px;
@@ -140,8 +146,16 @@ a {
 .nav-top {
     display: flex;
     justify-content: space-between;
-    background: rgb(11, 0, 36, 0.8);
+    background: rgb(11, 0, 36, 1.0);
+}
+
+@supports (backdrop-filter: blur(30px))
+or (-webkit-backdrop-filter: blur(30px)) {
+ .nav-top {
     backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    background: rgb(11, 0, 36, 0.8);
+ }
 }
 
 .fixed-top {
@@ -266,7 +280,7 @@ aside a.icon:hover svg {
 }
 
 aside a.face:hover img {
-    box-shadow: 0 0 40px var(--dark-purple);
+    box-shadow: 0 0 30px var(--dark-purple);
 }
 
 aside h1 {
@@ -427,6 +441,7 @@ img[src*='#center'] {
     }
 
     aside a.face img {
+        margin: 1vh;
         margin-top: 3vh;
     }
 

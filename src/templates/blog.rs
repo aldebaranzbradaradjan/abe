@@ -17,6 +17,7 @@ use syntect::parsing::SyntaxSet;
 #[derive(Content)]
 struct PostContent<'a> {
     title: &'a str,
+    abstract_: &'a str,
     toc: &'a str,
     body: &'a str,
     date: String,
@@ -242,6 +243,7 @@ pub fn post_template(post: Post) -> Result<String, ApiError> {
     let posts_content = PostContent {
         title: &post.title,
         toc: &render_markdown(&post_vec[0], false),
+        abstract_: &post.abstract_,
         body: &render_markdown(&post_vec[1], true),
         date: format!("{}", &post.created_at),
     };

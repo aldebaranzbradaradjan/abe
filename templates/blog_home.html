@@ -2,11 +2,13 @@
 <html>
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>{{title}}</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <link rel='icon' type='image/icon' href="/public/favicon.ico">
     <link rel="stylesheet" href="/public/css/blog.css">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description" content="Juste le blog d'un développeur de plus, j'adorerais changer le monde, mais ils ne veulent pas me fournir le code source.">
+    <title>{{title}}</title>
 </head>
 
 <body>
@@ -20,7 +22,7 @@
         <a href="/blog/post/{{id}}">
             <h2>{{title}}</h2>
         </a>
-        <p>{{abstract_}} </p>
+        <p>{{abstract_}}</p>
         <time>Posted on {{date}}</time>
         {{/posts}}
         {{^posts}}<p>No posts yet :(</p>{{/posts}}
