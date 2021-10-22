@@ -60,7 +60,7 @@ or (-webkit-backdrop-filter: blur(30px)) {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: var(--purple);
+    background: var(--light-purple);
 }
 
 ::-webkit-scrollbar-corner {
@@ -92,14 +92,19 @@ a {
 }
 
 .toc {
-    background: rgb(11, 0, 36, 0.8);
+    background: rgb(11, 0, 36, 1.0);
     padding: 20px;
-    
     overflow: hidden scroll;
     overflow-y: auto;
-    scrollbar-color: var(--purple) rgba(0,0,0,0);
+    scrollbar-color: var(--light-purple) rgba(0,0,0,0);
     scrollbar-width: thin;
-    backdrop-filter: blur(30px);
+}
+
+@supports (backdrop-filter: blur(30px))
+or (-webkit-backdrop-filter: blur(30px)) {
+    .toc {
+        background: rgb(11, 0, 36, 0.7);
+    }
 }
 
 .toc * {
@@ -121,12 +126,11 @@ a {
 
 .toc a {
     text-decoration:none;
-    color: var(--purple);
+    color: var(--light-purple);
 }
 
-/* mouse over link */
 .toc a:hover {
-    color: var(--light-purple);
+    color: var(--purple);
 }
 
 .nav-top a {
@@ -152,8 +156,6 @@ a {
 @supports (backdrop-filter: blur(30px))
 or (-webkit-backdrop-filter: blur(30px)) {
  .nav-top {
-    backdrop-filter: blur(30px);
-    -webkit-backdrop-filter: blur(30px);
     background: rgb(11, 0, 36, 0.8);
  }
 }
@@ -166,6 +168,14 @@ or (-webkit-backdrop-filter: blur(30px)) {
     z-index: 100;
 }
 
+@supports (backdrop-filter: blur(30px))
+or (-webkit-backdrop-filter: blur(30px)) {
+.fixed-top {
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+ }
+}
+
 .progress-container {
     width: 100%;
     background-color: rgb(26, 0, 43);
@@ -174,7 +184,7 @@ or (-webkit-backdrop-filter: blur(30px)) {
 }
 
 .progress-bar {
-    background-color: var(--purple);
+    background-color: var(--light-purple);
     width: 0%;
     display: block;
     height: inherit;
@@ -255,6 +265,10 @@ aside a.face img {
 aside a {
     text-decoration: none;
     outline: none;
+    color: var(--dark-purple);
+}
+
+aside a:hover {
     color: var(--purple);
 }
 
@@ -280,7 +294,7 @@ aside a.icon:hover svg {
 }
 
 aside a.face:hover img {
-    box-shadow: 0 0 30px var(--dark-purple);
+    box-shadow: 0 0 30px var(--purple);
 }
 
 aside h1 {
@@ -294,7 +308,7 @@ article a {
 }
 
 article header {
-    padding-top: 2em;
+    padding-top: 2.5em;
 }
 
 article header h1, .index header h1 {
@@ -409,11 +423,15 @@ img[src*='#center'] {
     .toc {
         column-count: 2;
         column-gap: 20px;
-        column-rule: 1px solid var(--purple);
+        column-rule: 1px solid var(--light-purple);
     }
 }
 
 @media screen and (min-width: 1200px) {
+
+    article header {
+        padding-top: 0;
+    }
 
     .footer {
         display: none;
@@ -472,6 +490,7 @@ img[src*='#center'] {
         display: flex;
         margin: 10px;
         background-color: unset;
+        backdrop-filter: none;
     }
 
     .user-content-title {
