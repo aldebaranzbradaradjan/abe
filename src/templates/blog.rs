@@ -141,7 +141,6 @@ pub fn add_markdown_toc(content: &str) -> Result<Vec<String>, ApiError> {
             body.push_str(&format!("{}\n", l));
         });
 
-    println!("{}",toc);
     Ok(vec![toc, body])
 }
 
