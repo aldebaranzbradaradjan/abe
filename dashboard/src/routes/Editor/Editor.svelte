@@ -66,7 +66,7 @@
 			var evt = document.createEvent("Events");
 			var evt= new Event('input');
     		el.dispatchEvent(evt);
-		}, 200);
+		}, 500);
 		
 	}
 
