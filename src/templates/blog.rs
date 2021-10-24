@@ -244,7 +244,7 @@ pub fn post_template(post: Post) -> Result<String, ApiError> {
         toc: &render_markdown(&post_vec[0], false),
         abstract_: &post.abstract_,
         body: &render_markdown(&post_vec[1], true),
-        date: format!("{}", &post.created_at),
+        date: post.created_at.format("%Y-%m-%d %H:%M:%S").to_string(),
     };
     Ok(tpls.from_file("blog_post.html")?.render(&posts_content))
 }
@@ -258,7 +258,7 @@ pub fn home_template(posts: (Vec<Post>, i64), page: Option<i64>) -> Result<Strin
             title: &post.title,
             abstract_: &post.abstract_,
             body: &"",
-            date: format!("{}", &post.created_at),
+            date: post.created_at.format("%Y-%m-%d %H:%M:%S").to_string(),
         })
     }
     let mut _prev = 0;
