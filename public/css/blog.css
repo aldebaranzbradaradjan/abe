@@ -343,6 +343,17 @@ article header time, .index article time {
     color: #888;
 }
 
+article img {
+    min-width: 15em;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    box-shadow: 0 0 1em #23004d80;
+    border-radius: 5px;
+    width: 40vw;
+    max-width: 90vw;
+}
+
 aside em {
     color: #777;
     font-style: normal;
@@ -361,11 +372,12 @@ aside p {
 
 code, pre {
     border-radius: 0.3em;
-    background: #f8f8f8;
+    background: #2b303b80 !important;
+    font-size: clamp(1rem, -0.875rem + 8.3332vmin, 1.0rem);
 }
 
 code {
-    color: #000;
+    color: #c0c5ce;
     padding: 0.1em 0.3em;
 }
 
@@ -429,6 +441,10 @@ img[src*='#center'] {
 }
 
 @media screen and (min-width: 1200px) {
+
+    article img {
+        max-width: 25em;
+    }
 
     article header {
         padding-top: 0;
