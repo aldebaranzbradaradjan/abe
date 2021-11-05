@@ -14,9 +14,6 @@
 <body>
 
     <div class="fixed-top">
-        <div id="progress_bar_container" class="progress-container">
-            <span id="progress_bar" class="progress-bar"></span>
-        </div>
         <nav class="nav-top">
             <a href="/blog"><b>Back To Home</b></a>
             <a href="javascript:toggleToc()"><b>Table Of Content</b></a>
@@ -96,10 +93,6 @@
 
     <script>
 
-        function scrollProgressBar() {
-            document.getElementById("progress_bar").style.width = window.scrollY * document.getElementById("progress_bar_container").clientWidth / window.scrollMaxY + "px";
-        }
-
         function toggleToc() {
             var x = document.getElementById("toc");
             if (x.className.indexOf("show") == -1) {
@@ -113,9 +106,6 @@
             // feature only supported on firefox at time of writing
             if (navigator.userAgent.indexOf("Firefox") === -1)
                 document.getElementsByClassName("toc aside-toc")[0].getElementsByTagName("ul")[0].style.alignSelf = "start";
-
-            window.onscroll = function () { scrollProgressBar() };
-            scrollProgressBar();
 
             var each = document.getElementById("toc").getElementsByTagName("a");
             for (var i = 0, l = each.length; i < l; i++) {

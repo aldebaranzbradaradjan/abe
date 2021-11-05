@@ -152,6 +152,7 @@ or (-webkit-backdrop-filter: blur(30px)) {
     display: flex;
     justify-content: space-between;
     background: rgb(11, 0, 36, 1.0);
+    padding-top: 5px;
 }
 
 @supports (backdrop-filter: blur(30px))
