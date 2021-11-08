@@ -60,22 +60,14 @@
 		title = post.title;
 		abstract = post.abstract_;
 
-		// dirty way to wait 200ms after yew loading
-		setTimeout(() => {
-			var el = document.getElementById("textarea"); el.value = post.body;
-			var evt = document.createEvent("Events");
-			var evt= new Event('input');
-    		el.dispatchEvent(evt);
-		}, 500);
-		
+		var el = document.getElementById("textarea"); el.value = post.body;
+		var evt = document.createEvent("Events");
+		var evt= new Event('input');
+		el.dispatchEvent(evt);
 	}
 
-	onMount(() => {
-		async function foo() {
-			var bar = await init("/dashboard/admin_restricted/ame/wasm_bg.wasm");
-		}
-
-		foo();
+	onMount(async () => {
+		await init("/dashboard/admin_restricted/ame/wasm_bg.wasm");
 		if (params.id !== null) get_post(params.id);
 	});
 </script>
