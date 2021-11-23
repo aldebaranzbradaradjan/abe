@@ -375,6 +375,7 @@ code, pre {
     border-radius: 0.3em;
     background: #2b303b80 !important;
     font-size: clamp(0.5rem, -0.875rem + 8.3332vmin, 0.9rem);
+    box-shadow: 0 0 1em #23004d80;
 }
 
 code {
