@@ -18,6 +18,7 @@ mod mails;
 mod middlewares;
 mod models;
 mod templates;
+mod websockets;
 
 use crate::{db as database, errors::*, mails as mail};
 

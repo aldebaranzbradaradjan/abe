@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel='icon' type='image/icon' href="/public/favicon.ico">
+    <link rel="stylesheet" href="/public/css/blog.min.css">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description" content="Register / Login / Juste le blog d'un développeur de plus, j'adorerais changer le monde, mais ils ne veulent pas me fournir le code source.">
+    <script type="text/javascript" src="/public/js/common.min.js"></script>
+    <title>Register / Login</title>
+</head>
+
+<body>
+    <div class="login-background"></div>
+    <div class="cards-container">
+        <h1>{{platform_name}}</h1>
+        <div class="card">
+            <h4>Connectez-vous</h4>
+            <form id="login" method="post">
+                <input type="email" id="email" name="email" placeholder="Courriel" required="required" />
+                <input type="password" id="password" name="password" placeholder="Mot de passe" required="required" />
+                <span id="error" class="hidden-important" aria-live="polite"></span>
+                <input type="submit" value="Connexion" />
+            </form>
+            <hr>
+            <button id="show-create">Créer un compte</button>
+            <button id="show-forgot">Mot de passe oublié ?</button>
+        </div>
+
+        <div class="card hidden-important">
+            <h4>Créer un compte</h4>
+            <form id="register" method="post">
+                <input type="name" id="name" name="name" placeholder="Nom / Pseudo" required="required" />
+                <input type="email" id="email-register" name="email" placeholder="Courriel" required="required" />
+                <input type="password" id="password-register" name="password" placeholder="Mot de passe" required="required" />
+                <input type="password" id="password-register-sec" name="password" placeholder="Mot de passe (pour être sûr)" required="required" />
+                <span id="error-register" class="hidden-important" aria-live="polite"></span>
+                <input id="register-button" type="submit" value="Inscription" disabled/>
+            </form>
+            <hr>
+            <button id="show-connect">Connectez vous</button>
+        </div>
+
+        <div class="card hidden-important">
+            <h4>Mot de passe oublié</h4>
+            <p>Entrez l'adresse de courriel associée à ce compte. Les instructions pour réinitialiser votre mot de passe vous seront envoyées.</p>
+            <form id="forgot" method="post">
+                <input type="email" id="email-forgot" name="email" placeholder="Courriel" required="required" />
+                <span id="error-forgot" class="hidden-important" aria-live="polite"></span>
+                <input type="submit" value="Envoyer" />
+            </form>
+            <hr>
+            <button id="show-connect-sec">Connectez vous</button>
+        </div>
+
+    </div>
+
+    <script>
+        async function submit_login(event) {
+            event.preventDefault()
+
+            const settings = {
+                method: "POST",
+                body: JSON.stringify({
+                    "password": document.getElementById("password").value,
+                    "email": document.getElementById("email").value,
+                }),
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                }
+            }
+            const response = await fetch("/api/v1/login", settings)
+            if (!response.ok) {
+                response.json().then(j => {
+                    document.getElementById("error").className = "";
+                    document.getElementById("error").innerHTML = "Erreur API : " + j.errors[0]
+                })
+            } else window.location.href = "/blog"
+        };
+
+        async function create_account(event) {
+            event.preventDefault()
+
+            const settings = {
+                method: "POST",
+                body: JSON.stringify({
+                    "username": document.getElementById("name").value,
+                    "password": document.getElementById("password-register").value,
+                    "email": document.getElementById("email-register").value,
+                }),
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                }
+            }
+            const response = await fetch("/api/v1/user/register", settings)
+            if (!response.ok) {
+                response.json().then(j => {
+                    document.getElementById("error-register").className = "";
+                    document.getElementById("error-register").innerHTML = "Erreur API : " + j.errors[0]
+                })
+            } else window.location.href = "/blog/login"
+        };
+
+        async function forgot_account(event) {
+            event.preventDefault()
+
+            const settings = {
+                method: "POST",
+                body: JSON.stringify({
+                    "email": document.getElementById("email-forgot").value,
+                }),
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                }
+            }
+            const response = await fetch("/api/v1/user/forgot_password", settings)
+            if (!response.ok) {
+                response.json().then(j => {
+                    document.getElementById("error-forgot").className = "";
+                    document.getElementById("error-forgot").innerHTML = "Erreur API : " + j.errors[0]
+                })
+            } else window.location.href = "/blog/login"
+        };
+
+        function showCard(num) {
+            let cards = document.getElementsByClassName("card")
+            for (let i = 0; i < cards.length; i++) {
+                if (i === num) {
+                    cards[i].className = cards[i].className.replace(" hidden-important", "")
+                } else if (cards[i].className.indexOf("hidden-important") == -1) {
+                    cards[i].className += " hidden-important"
+                }
+            }
+        }
+
+        window.onload = async function() {
+            document.getElementById("login").addEventListener("submit", submit_login, true)
+            document.getElementById("register").addEventListener("submit", create_account, true)
+            document.getElementById("forgot").addEventListener("submit", forgot_account, true)
+            document.getElementById("show-connect").addEventListener("click", function() {
+                showCard(0)
+            })
+            document.getElementById("show-connect-sec").addEventListener("click", function() {
+                showCard(0)
+            })
+            document.getElementById("show-create").addEventListener("click", function() {
+                showCard(1)
+            })
+            document.getElementById("show-forgot").addEventListener("click", function() {
+                showCard(2)
+            })
+            checkEmailValidity("email", "error")
+            checkEmailValidity("email-register", "error-register")
+            checkEmailValidity("email-forgot", "error-forgot")
+            checkPasswordSimilarity("password-register", "password-register-sec", "error-register", "register-button")
+            checkPasswordSimilarity("password-register-sec", "password-register", "error-register", "register-button")
+        }
+    </script>
+
+</body>
+
+</html>

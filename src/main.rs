@@ -21,6 +21,7 @@ mod mails;
 mod middlewares;
 mod models;
 mod templates;
+mod websockets;
 
 use crate::db as database;
 use crate::handlers as handler;
@@ -54,6 +55,7 @@ async fn main() -> std::io::Result<()> {
 
     let pool = database::init_pool().expect("Failed to create pool");
     let postman = mails::Postman.start();
+    let notifier = websockets::notification::NotificationServer::new().start();
 
     HttpServer::new(move || {
         App::new()
@@ -61,10 +63,13 @@ async fn main() -> std::io::Result<()> {
             .data(pool.clone())
             // insert actor postman
             .data(postman.clone())
+            // insert list of clients
+            .data(notifier.clone())
             .service(
                 web::scope("/api/v1")
                     .configure(handler::users::configure)
-                    .configure(handler::posts::configure),
+                    .configure(handler::posts::configure)
+                    .configure(handler::comments::configure),
             )
             .configure(handler::dashboard::configure)
             .configure(handler::blog::configure)

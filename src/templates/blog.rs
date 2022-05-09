@@ -15,7 +15,13 @@ use syntect::html::highlighted_html_for_string;
 use syntect::parsing::SyntaxSet;
 
 #[derive(Content)]
+struct PlatformContent<'a> {
+    platform_name: &'a str,
+}
+
+#[derive(Content)]
 struct PostContent<'a> {
+    id: &'a i32,
     title: &'a str,
     abstract_: &'a str,
     toc: &'a str,
@@ -43,7 +49,7 @@ struct BlogContent<'a> {
 }
 
 #[derive(Content)]
-struct LoginContent<'a> {
+struct TitleContent<'a> {
     title: &'a str,
 }
 
@@ -57,6 +63,7 @@ pub fn add_markdown_toc(content: &str) -> Result<Vec<String>, ApiError> {
     let mut toc = String::new();
     let mut skip = false;
 
+    let mut count : i32 = -1;
     //result.push_str( &format!("# Table of Contents\n") );
 
     content
@@ -96,20 +103,23 @@ pub fn add_markdown_toc(content: &str) -> Result<Vec<String>, ApiError> {
         })
         .filter_map(|h| {
             let x = h?;
+            count = count + 1;
             Some(format!(
                 "{} {} {}",
                 " ".repeat(2).repeat(x.depth),
                 "*",
                 format!(
-                    "[{}](#user-content-{})",
+                    "[{}](#anchor-content-{})",
                     &x.title,
-                    &x.title.replace(" ", "-").to_lowercase()
+                    &count
                 )
             ))
         })
         .for_each(|l| {
             toc.push_str(&format!("{}\n", l));
         });
+
+    count = -1;
 
     content
         .lines()
@@ -121,16 +131,10 @@ pub fn add_markdown_toc(content: &str) -> Result<Vec<String>, ApiError> {
             }
 
             if trimmed.starts_with("#") && !skip {
-                let line = trimmed
-                    .chars()
-                    .skip_while(|c| if *c == '#' { true } else { false })
-                    .collect::<String>()
-                    .trim_start()
-                    .to_owned();
-
+                count = count + 1;
                 format!(
-                    "<a class=\"anchor-content\" id=\"user-content-{}\"></a>\n{}",
-                    line.replace(" ", "-").to_lowercase(),
+                    "<a class=\"anchor-content\" id=\"anchor-content-{}\"></a>\n{}",
+                    &count,
                     l
                 )
             } else {
@@ -236,10 +240,27 @@ pub fn render_markdown(markdown: &str, highlighting: bool) -> String {
     unsafe_html
 }
 
+pub fn register_login_template() -> Result<String, ApiError> {
+    let mut tpls = Ramhorns::lazy(env::var("TEMPLATES_PATH")?)?;
+    let content = PlatformContent {
+        platform_name: &env::var("PLATFORM_NAME")?,
+    };
+    Ok(tpls.from_file("blog_register_login.html")?.render(&content))
+}
+
+pub fn reset_password_template() -> Result<String, ApiError> {
+    let mut tpls = Ramhorns::lazy(env::var("TEMPLATES_PATH")?)?;
+    let content = PlatformContent {
+        platform_name: &env::var("PLATFORM_NAME")?,
+    };
+    Ok(tpls.from_file("blog_reset_password.html")?.render(&content))
+}
+
 pub fn post_template(post: Post) -> Result<String, ApiError> {
     let mut tpls = Ramhorns::lazy(env::var("TEMPLATES_PATH")?)?;
     let post_vec = add_markdown_toc(&post.body)?;
     let posts_content = PostContent {
+        id: &post.id,
         title: &post.title,
         toc: &render_markdown(&post_vec[0], false),
         abstract_: &post.abstract_,
@@ -283,6 +304,16 @@ pub fn home_template(posts: (Vec<Post>, i64), page: Option<i64>) -> Result<Strin
                 }
                 _ => None,
             },
+        }),
+    ))
+}
+
+pub fn profile_template() -> Result<String, ApiError> {
+    let mut tpls = Ramhorns::lazy(env::var("TEMPLATES_PATH")?)?;
+    
+    Ok(tpls.from_file("blog_profile.html")?.render(
+        &(TitleContent {
+            title: "Profil",
         }),
     ))
 }

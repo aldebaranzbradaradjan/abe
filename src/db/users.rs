@@ -43,12 +43,12 @@ pub fn register(admin: bool, user: &CreateUser, db: &DbConnection) -> Result<i32
     Ok(created_user.id)
 }
 
-pub fn update(_id: &i32, user: &CreateUser, db: &DbConnection) -> Result<(), ApiError> {
+pub fn update(_id: &i32, user: &UpdateUser, db: &DbConnection) -> Result<(), ApiError> {
     let current_user = get_user_by_id(_id, db)?;
-    let hash = hash(format!("{}{}", user.email, user.password), DEFAULT_COST)?;
+    let hash = hash(format!("{}{}", user.new_email, user.new_password), DEFAULT_COST)?;
     diesel::update(users.find(current_user.id))
         .set((
-            email.eq(&user.email),
+            email.eq(&user.new_email),
             password_hash.eq(hash),
             username.eq(&user.username),
         ))

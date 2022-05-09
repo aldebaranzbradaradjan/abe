@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel='icon' type='image/icon' href="/public/favicon.ico">
+    <link rel="stylesheet" href="/public/css/blog.min.css">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description" content="Juste le blog d'un développeur de plus, j'adorerais changer le monde, mais ils ne veulent pas me fournir le code source. Page Profil">
+    <script type="text/javascript" src="/public/js/common.min.js"></script>
+    <title>{{title}}</title>
+</head>
+
+<body>
+    <main>
+        <article>
+            <header>
+                <h1>{{title}}</h1>
+            </header>
+
+            <h2>Données du compte :</h2>
+            <div class="flex-row">
+                <h3>Nom / Pseudo :</h3>
+                <p id="displayed_name">Aldebaran</p>
+            </div>
+            <div class="flex-row">
+                <h3>Email: </h3>
+                <p id="displayed_email">e.k.******@gmail.com</p>
+            </div>
+
+            <h2>Mise à jour du compte :</h2>
+            <form id="update-account" class="flex-col" method="post">
+                <input type="text" id="name" name="name" placeholder="Nom / Pseudo" required="required" />
+                <input type="email" id="email" name="email" placeholder="Courriel actuel" required="required" />
+                <input type="email" id="new-email-1" name="emailn1" placeholder="Nouveau courriel" required="required" />
+                <input type="email" id="new-email-2" name="emailn2" placeholder="Nouveau courriel (encore)" required="required" />
+                <input type="password" id="current-password" name="password" placeholder="Mot de passe actuel" required="required" />
+                <input type="password" id="new-password-1" name="passwordn1" placeholder="Nouveau mot de passe" required="required" />
+                <input type="password" id="new-password-2" name="passwordn2" placeholder="Nouveau mot de passe (encore)" required="required" />
+                <span id="error" class="hidden-important" aria-live="polite"></span>
+                <hr>
+                <input type="submit" value="Mettre à jour" />
+            </form>
+
+            <h2>Préférences :</h2>
+            <div>
+                <input type="color" id="comment" name="comment" value="#e66465">
+                <label for="comment">Couleur de vos commentaires</label>
+            </div>
+            <div>
+                <input type="color" id="pcolor1" name="pcolor1" value="#e66465">
+                <label for="pcolor1">Couleur primaire</label>
+            </div>
+            <div>
+                <input type="color" id="pcolor2" name="pcolor2" value="#e66465">
+                <label for="pcolor2">Couleur secondaire</label>
+            </div>
+            <button id="show-connect">Mettre à jour vos préférences</button>
+
+            <h2>Suppression du compte :</h2>
+            <p>La suppression de votre compte entrainera la suppression de toutes vos données utilisateur.</p>
+            <p>Vous pourrez également, si vous le souhaitez, anonymiser vos commentaires.</p>
+            <p>Sinon ils seront supprimés en même temps que votre compte.</p>
+            <p>Cette action est irréversible.</p>
+            <button id="show-connect">Supprimer</button>
+
+        </article>
+
+        <aside>
+            <a href="/blog" class="face"><img src="/public/images/alde.jpg" alt="Logo home" /></a>
+            <h3>Hi, I'm Alde</h3>
+            <hr>
+            <p>J'adorerais changer le monde, mais ils ne veulent pas me fournir le code source.</p>
+            <hr>
+            <div>
+                <a class="icon" href="mailto:e.k.florian@gmail.com" title="email">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" viewBox="0 0 14 16">
+                    <path fill-rule="evenodd"
+                        d="M0 4v8c0 .55.45 1 1 1h12c.55 0 1-.45 1-1V4c0-.55-.45-1-1-1H1c-.55 0-1 .45-1 1zm13 0L7 9 1 4h12zM1 5.5l4 3-4 3v-6zM2 12l3.5-3L7 10.5 8.5 9l3.5 3H2zm11-.5l-4-3 4-3v6z">
+                    </path>
+                </svg>
+                </a>
+                <a class="icon" href="https://github.com/aldebaranzbradaradjan" target="_blank" title="Github">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                        d="M14.7 5.34c.13-.32.55-1.59-.13-3.31 0 0-1.05-.33-3.44 1.3-1-.28-2.07-.32-3.13-.32s-2.13.04-3.13.32c-2.39-1.64-3.44-1.3-3.44-1.3-.68 1.72-.26 2.99-.13 3.31C.49 6.21 0 7.33 0 8.69 0 13.84 3.33 15 7.98 15S16 13.84 16 8.69c0-1.36-.49-2.48-1.3-3.35zM8 14.02c-3.3 0-5.98-.15-5.98-3.35 0-.76.38-1.48 1.02-2.07 1.07-.98 2.9-.46 4.96-.46 2.07 0 3.88-.52 4.96.46.65.59 1.02 1.3 1.02 2.07 0 3.19-2.68 3.35-5.98 3.35zM5.49 9.01c-.66 0-1.2.8-1.2 1.78s.54 1.79 1.2 1.79c.66 0 1.2-.8 1.2-1.79s-.54-1.78-1.2-1.78zm5.02 0c-.66 0-1.2.79-1.2 1.78s.54 1.79 1.2 1.79c.66 0 1.2-.8 1.2-1.79s-.53-1.78-1.2-1.78z">
+                    </path>
+                </svg>
+                </a>
+                <a class="icon" href="https://www.facebook.com/florian.zebidi" target="_blank" title="Facebook">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" viewBox="0 0 22 22">
+                    <path d="M8.258,4.458c0-0.144,0.02-0.455,0.06-0.931c0.043-0.477,0.223-0.976,0.546-1.5c0.32-0.522,0.839-0.991,1.561-1.406
+                        C11.144,0.208,12.183,0,13.539,0h3.82v4.163h-2.797c-0.277,0-0.535,0.104-0.768,0.309c-0.231,0.205-0.35,0.4-0.35,0.581v2.59h3.914
+                        c-0.041,0.507-0.086,1-0.138,1.476l-0.155,1.258c-0.062,0.425-0.125,0.819-0.187,1.182h-3.462v11.542H8.258V11.558H5.742V7.643
+                        h2.516V4.458z">
+                    </path>
+                </svg>
+                </a>
+                <a class="icon" href="https://www.malt.fr/profile/florianz" target="_blank" title="Malt">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" viewbox="0 0 187 187">
+                    <path
+                        d="m 159.852,26.953 c -14.1,-14.1 -29.162,-4.974 -38.588,4.452 L 32.22,120.452 c -9.426,9.425 -19.292,23.746 -4.452,38.584 14.84,14.843 29.161,4.975 38.585,-4.451 L 155.399,65.54 c 9.426,-9.427 18.552,-24.489 4.453,-38.587 z" />
+                    <path
+                        d="M 74.78,23.306 93.635,42.16 112.827,22.968 c 1.303,-1.306 2.626,-2.518 3.957,-3.661 C 114.774,9.167 108.988,0 93.626,0 78.235,0 72.456,9.203 70.457,19.365 c 1.437,1.243 2.871,2.489 4.323,3.941 z" />
+                    <path
+                        d="m 112.816,163.359 -19.18,-19.181 -18.845,18.843 c -1.431,1.432 -2.855,2.74 -4.273,3.969 2.161,10.337 8.277,19.805 23.11,19.805 14.872,0 20.98,-9.519 23.127,-19.889 -1.319,-1.135 -2.639,-2.248 -3.939,-3.547 z" />
+                    <path
+                        d="M 66.783,69.013 H 30.433 C 17.105,69.013 0,73.212 0,93.15 c 0,14.877 9.522,20.986 19.894,23.132 1.228,-1.418 46.889,-47.269 46.889,-47.269 z" />
+                    <path
+                        d="m 167.435,69.981 c -1.15,1.338 -46.907,47.305 -46.907,47.305 h 35.834 c 13.329,0 30.433,-3.149 30.433,-24.136 0,-15.389 -9.2,-21.171 -19.36,-23.169 z" />
+                    <path
+                        d="M 78.693,57.081 85.187,50.587 66.344,31.741 C 56.917,22.316 42.598,12.449 27.758,27.289 16.876,38.171 19.293,48.762 25.065,57.36 26.823,57.23 78.693,57.081 78.693,57.081 Z" />
+                    <path
+                        d="m 108.571,129.218 -6.511,6.511 19.194,19.192 c 9.426,9.427 24.488,18.551 38.586,4.453 10.52,-10.521 8.106,-21.571 2.29,-30.423 -1.872,0.135 -53.559,0.267 -53.559,0.267 z" />
+                </svg>
+                </a>
+            </div>
+            <hr>
+            <div class="margin-top-auto"></div>
+            <div class="actions-container">
+                <span><a>Déconnexion</a></span>
+                <span><a>Accueil</a></span>
+            </div>
+        </aside>
+
+    </main>
+
+    <script>
+        async function update_account(event) {
+            event.preventDefault()
+
+            const settings = {
+                method: "PUT",
+                body: JSON.stringify({
+                    "old_password": document.getElementById("current-password").value,
+                    "new_password": document.getElementById("new-password-1").value,
+                    "old_email": document.getElementById("email").value,
+                    "new_email": document.getElementById("new-email-1").value,
+                    "username": document.getElementById("name").value
+                }),
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                }
+            }
+            const response = await fetch("/api/v1/user/user_restricted/update", settings)
+            if (!response.ok) {
+                response.json().then(j => {
+                    document.getElementById("error").className = "";
+                    document.getElementById("error").innerHTML = "Erreur API : " + j.errors[0]
+                })
+            } else window.location.href = "/blog/profile"
+        };
+
+        async function get_account() {
+            const settings = {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                }
+            }
+            const response = await fetch("/api/v1/user/user_restricted", settings)
+            if (!response.ok) {
+                response.json().then(j => {
+                    document.getElementById("error").className = "";
+                    document.getElementById("error").innerHTML = "Erreur API : " + j.errors[0]
+                })
+            } else {
+                response.json().then(j => {
+                    document.getElementById("displayed_email").innerHTML = j["email"]
+                    document.getElementById("displayed_name").innerHTML = j["username"]
+                })
+            }
+        };
+
+        window.onload = async function() {
+            let logout_home = document.getElementsByClassName("actions-container")[0]
+            if (!checkCookie("CookieChecker")) {
+                window.location.href = "/blog"
+            }
+            let logout = logout_home.getElementsByTagName("a")[0]
+            let home = logout_home.getElementsByTagName("a")[1]
+            logout.addEventListener("click", function(e) {
+                e.preventDefault()
+                disconnect()
+            })
+            home.addEventListener("click", function(e) {
+                e.preventDefault()
+                window.location.href = "/blog"
+            })
+
+            document.getElementById("update-account").addEventListener("submit", update_account, true)
+            get_account()
+        }
+    </script>
+
+</body>
+
+</html>

@@ -1,4 +1,17 @@
 table! {
+    comments (id) {
+        id -> Int4,
+        post_id -> Nullable<Int4>,
+        parent_id -> Nullable<Int4>,
+        user_id -> Int4,
+        body -> Text,
+        likes -> Int4,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+table! {
     posts (id) {
         id -> Int4,
         title -> Varchar,
@@ -25,7 +38,10 @@ table! {
     }
 }
 
+joinable!(comments -> users (user_id));
+
 allow_tables_to_appear_in_same_query!(
+    comments,
     posts,
     users,
 );

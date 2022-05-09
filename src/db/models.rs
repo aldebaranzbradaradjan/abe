@@ -1,18 +1,29 @@
-use super::schema::users;
+use super::schema::comments;
 use super::schema::posts;
+use super::schema::users;
 use chrono::NaiveDateTime;
+
+mod naive_date_time_serializer {
+    use chrono::NaiveDateTime;
+    use serde::{Serializer, Serialize};
+
+    pub fn serialize<S: Serializer>(time: &NaiveDateTime, serializer: S) -> Result<S::Ok, S::Error> {
+        time.format("%Y-%m-%d %H:%M:%S").to_string().serialize(serializer)
+    }
+
+}
 
 #[derive(Serialize, Queryable, Debug)]
 pub struct User {
     pub id: i32,
     pub is_admin: bool,
     pub username: String,
-    #[serde(skip_serializing)]
     pub email: String,
     #[serde(skip_serializing)]
     pub token_key: String,
     #[serde(skip_serializing)]
     pub password_hash: String,
+    #[serde(skip_serializing)]
     pub reset_token: String,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
@@ -28,7 +39,25 @@ pub struct NewUser<'a> {
     pub password_hash: &'a str,
     pub reset_token: &'a str,
 }
-
+#[derive(Serialize, Queryable, Debug)]
+pub struct MinimalUser {
+    pub id: i32,
+    #[serde(skip_serializing)]
+    pub is_admin: bool,
+    pub username: String,
+    #[serde(skip_serializing)]
+    pub email: String,
+    #[serde(skip_serializing)]
+    pub token_key: String,
+    #[serde(skip_serializing)]
+    pub password_hash: String,
+    #[serde(skip_serializing)]
+    pub reset_token: String,
+    #[serde(skip_serializing)]
+    pub created_at: NaiveDateTime,
+    #[serde(skip_serializing)]
+    pub updated_at: NaiveDateTime,
+}
 
 #[derive(Serialize, Queryable, Debug)]
 pub struct Post {
@@ -48,4 +77,27 @@ pub struct NewPost<'a> {
     pub abstract_: &'a str,
     pub body: &'a str,
     pub published: Option<&'a NaiveDateTime>,
+}
+
+#[derive(Serialize, Queryable, Debug)]
+pub struct Comment {
+    pub id: i32,
+    pub post_id: Option<i32>,
+    pub parent_id: Option<i32>,
+    pub user_id: i32,
+    pub body: String,
+    pub likes: i32,
+    #[serde(with = "naive_date_time_serializer")]
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Insertable)]
+#[table_name = "comments"]
+pub struct NewComment<'a> {
+    pub post_id: Option<&'a i32>,
+    pub parent_id: Option<&'a i32>,
+    pub user_id: &'a i32,
+    pub body: &'a str,
+    pub likes: Option<&'a i32>,
 }

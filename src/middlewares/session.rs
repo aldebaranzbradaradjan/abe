@@ -90,7 +90,7 @@ where
                         http::header::LOCATION,
                         match self.level {
                             Level::Admin => "/dashboard/login",
-                            Level::User => "/api/v1/login",
+                            Level::User => "/blog/login",
                         },
                     )
                     .body(format!("Invalid Token : {}", e))

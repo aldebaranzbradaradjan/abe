@@ -10,14 +10,15 @@ default-run = "api"
 name = "api"
 path = "src/main.rs"
 
-#[[bin]]
-#name = "artisan"
-#path = "src/artisan.rs"
+[[bin]]
+name = "artisan"
+path = "src/artisan.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
 actix = "0.10.0"
 actix-web = "3.3.0"
+actix-web-actors = "3.0.0"
 actix-service = "1.0.6"
 actix-files = "0.5.0"
 
@@ -54,3 +55,4 @@ lettre_email = "0.9"
 ramhorns = "0.11.0"
 pulldown-cmark = { version = "0.8", default-features = false, features = ["simd"] }
 syntect = "4.4"
+ammonia = "3.1.3"

@@ -45,7 +45,7 @@ pub fn reset_token(mail: &str, username: &str, token: &str) -> Result<String, Ap
     let mut tpls = Ramhorns::lazy(env::var("TEMPLATES_PATH")?)?;
     let tpl = tpls.from_file("mail.html")?;
 
-    let url = format!("domain.your/reset_password/{}/{}", mail, token);
+    let url = format!("{}/blog/reset_password?email={}&token={}", env::var("DOMAIN")?, mail, token);
     let mut buttons = Vec::new();
 
     buttons.push(EmailButtons {

@@ -5,73 +5,70 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <link rel='icon' type='image/icon' href="/public/favicon.ico">
-    <link rel="stylesheet" href="/public/css/blog.css">
+    <link rel="stylesheet" href="/public/css/blog.min.css">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="description"
-        content="Juste le blog d'un développeur de plus, j'adorerais changer le monde, mais ils ne veulent pas me fournir le code source.">
+    <meta name="description" content="Juste le blog d'un développeur de plus, j'adorerais changer le monde, mais ils ne veulent pas me fournir le code source.">
+    <script type="text/javascript" src="/public/js/common.min.js"></script>
     <title>{{title}}</title>
 </head>
 
 <body>
-    <div class="background-image"></div>
-    <article>
-        <header>
-            <h1>{{title}}</h1>
-        </header>
+    <main>
+        <article>
+            <header>
+                <h1>{{title}}</h1>
+            </header>
 
-        {{#posts}}
-        <a href="/blog/post/{{id}}">
-            <h2>{{title}}</h2>
-        </a>
-        <p>{{abstract_}}</p>
-        <time>{{date}}</time>
-        {{/posts}}
-        {{^posts}}<p>No posts yet :(</p>{{/posts}}
+            {{#posts}}
+            <a href="/blog/post/{{id}}">
+                <h2>{{title}}</h2>
+            </a>
+            <p>{{abstract_}}</p>
+            <time>{{date}}</time> {{/posts}} {{^posts}}
+            <p>No posts yet :(</p>{{/posts}}
 
-        <div class="previous_next">
-            {{#prev_page}}
-            <a href="/blog/{{prev_page}}/4"> &laquo; Previous</a>
-            {{/prev_page}}
-            <div>{{page}} / {{total_pages}}</div>
-            {{#next_page}}
-            <a href="/blog/{{next_page}}/4">Next &raquo;</a>
-            {{/next_page}}
-        </div>
+            <div class="previous_next">
+                {{#prev_page}}
+                <a href="/blog/{{prev_page}}/4"> &laquo; Page précédente</a> {{/prev_page}}
+                <div>{{page}} / {{total_pages}}</div>
+                {{#next_page}}
+                <a href="/blog/{{next_page}}/4">Page suivante &raquo;</a> {{/next_page}}
+            </div>
 
-    </article>
+        </article>
 
-    <aside>
-        <a href="/blog" class="face"><img src="/public/images/alde.jpg" alt="Logo home" /></a>
-        <h3>Hi, I'm Alde</h3>
-        <hr>
-        <p>J'adorerais changer le monde, mais ils ne veulent pas me fournir le code source.</p>
-        <hr>
-        <div>
-            <a class="icon" href="mailto:e.k.florian@gmail.com" title="email">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" viewBox="0 0 14 16">
+        <aside>
+            <a href="/blog" class="face"><img src="/public/images/alde.jpg" alt="Logo home" /></a>
+            <h3>Hi, I'm Alde</h3>
+            <hr>
+            <p>J'adorerais changer le monde, mais ils ne veulent pas me fournir le code source.</p>
+            <hr>
+            <div>
+                <a class="icon" href="mailto:e.k.florian@gmail.com" title="email">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" viewBox="0 0 14 16">
                     <path fill-rule="evenodd"
                         d="M0 4v8c0 .55.45 1 1 1h12c.55 0 1-.45 1-1V4c0-.55-.45-1-1-1H1c-.55 0-1 .45-1 1zm13 0L7 9 1 4h12zM1 5.5l4 3-4 3v-6zM2 12l3.5-3L7 10.5 8.5 9l3.5 3H2zm11-.5l-4-3 4-3v6z">
                     </path>
                 </svg>
-            </a>
-            <a class="icon" href="https://github.com/aldebaranzbradaradjan" target="_blank" title="Github">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" viewBox="0 0 16 16">
+                </a>
+                <a class="icon" href="https://github.com/aldebaranzbradaradjan" target="_blank" title="Github">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" viewBox="0 0 16 16">
                     <path fill-rule="evenodd"
                         d="M14.7 5.34c.13-.32.55-1.59-.13-3.31 0 0-1.05-.33-3.44 1.3-1-.28-2.07-.32-3.13-.32s-2.13.04-3.13.32c-2.39-1.64-3.44-1.3-3.44-1.3-.68 1.72-.26 2.99-.13 3.31C.49 6.21 0 7.33 0 8.69 0 13.84 3.33 15 7.98 15S16 13.84 16 8.69c0-1.36-.49-2.48-1.3-3.35zM8 14.02c-3.3 0-5.98-.15-5.98-3.35 0-.76.38-1.48 1.02-2.07 1.07-.98 2.9-.46 4.96-.46 2.07 0 3.88-.52 4.96.46.65.59 1.02 1.3 1.02 2.07 0 3.19-2.68 3.35-5.98 3.35zM5.49 9.01c-.66 0-1.2.8-1.2 1.78s.54 1.79 1.2 1.79c.66 0 1.2-.8 1.2-1.79s-.54-1.78-1.2-1.78zm5.02 0c-.66 0-1.2.79-1.2 1.78s.54 1.79 1.2 1.79c.66 0 1.2-.8 1.2-1.79s-.53-1.78-1.2-1.78z">
                     </path>
                 </svg>
-            </a>
-            <a class="icon" href="https://www.facebook.com/florian.zebidi" target="_blank" title="Facebook">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" viewBox="0 0 22 22">
+                </a>
+                <a class="icon" href="https://www.facebook.com/florian.zebidi" target="_blank" title="Facebook">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" viewBox="0 0 22 22">
                     <path d="M8.258,4.458c0-0.144,0.02-0.455,0.06-0.931c0.043-0.477,0.223-0.976,0.546-1.5c0.32-0.522,0.839-0.991,1.561-1.406
                         C11.144,0.208,12.183,0,13.539,0h3.82v4.163h-2.797c-0.277,0-0.535,0.104-0.768,0.309c-0.231,0.205-0.35,0.4-0.35,0.581v2.59h3.914
                         c-0.041,0.507-0.086,1-0.138,1.476l-0.155,1.258c-0.062,0.425-0.125,0.819-0.187,1.182h-3.462v11.542H8.258V11.558H5.742V7.643
                         h2.516V4.458z">
                     </path>
                 </svg>
-            </a>
-            <a class="icon" href="https://www.malt.fr/profile/florianz" target="_blank" title="Malt">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" viewbox="0 0 187 187">
+                </a>
+                <a class="icon" href="https://www.malt.fr/profile/florianz" target="_blank" title="Malt">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" viewbox="0 0 187 187">
                     <path
                         d="m 159.852,26.953 c -14.1,-14.1 -29.162,-4.974 -38.588,4.452 L 32.22,120.452 c -9.426,9.425 -19.292,23.746 -4.452,38.584 14.84,14.843 29.161,4.975 38.585,-4.451 L 155.399,65.54 c 9.426,-9.427 18.552,-24.489 4.453,-38.587 z" />
                     <path
@@ -87,9 +84,45 @@
                     <path
                         d="m 108.571,129.218 -6.511,6.511 19.194,19.192 c 9.426,9.427 24.488,18.551 38.586,4.453 10.52,-10.521 8.106,-21.571 2.29,-30.423 -1.872,0.135 -53.559,0.267 -53.559,0.267 z" />
                 </svg>
-            </a>
-        </div>
-    </aside>
+                </a>
+            </div>
+            <hr>
+            <div class="margin-top-auto"></div>
+            <div class="actions-container">
+                <span><a>Déconnexion</a></span>
+                <span><a>Profil</a></span>
+                <span><a>Connexion</a></span>
+            </div>
+        </aside>
+
+    </main>
+
+    <script>
+        window.onload = async function() {
+            let logout_profile = document.getElementsByClassName("actions-container")[0].getElementsByTagName("a")
+            let logout = logout_profile[0]
+            let profile = logout_profile[1]
+            let connect = logout_profile[2]
+            if (!checkCookie("CookieChecker")) {
+                logout.remove()
+                profile.remove()
+                connect.addEventListener("click", function(e) {
+                    e.preventDefault()
+                    window.location.href = "/blog/login"
+                })
+            } else {
+                connect.remove()
+                logout.addEventListener("click", function(e) {
+                    e.preventDefault()
+                    disconnect()
+                })
+                profile.addEventListener("click", function(e) {
+                    e.preventDefault()
+                    window.location.href = "/blog/profile"
+                })
+            }
+        }
+    </script>
 
 </body>
 

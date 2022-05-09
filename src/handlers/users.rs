@@ -1,3 +1,4 @@
+use actix_web::cookie::SameSite;
 use actix_web::{cookie::Cookie, web, HttpRequest, HttpResponse};
 use validator::Validate;
 
@@ -27,14 +28,37 @@ pub async fn register(
 
 pub async fn update(
     pool: web::Data<db::DbPool>,
-    input: web::Json<CreateUser>,
+    input: web::Json<UpdateUser>,
     req: HttpRequest,
 ) -> Result<HttpResponse, ApiError> {
     input.validate()?;
     let db = pool.get()?;
     let j = extract_json_token(req)?;
+    db::users::auth(&input.0.old_email, &input.0.old_password, &db)?;
     db::users::update(&j.id, &input.0, &db)?;
-    Ok(HttpResponse::Ok().finish())
+    let result = db::users::auth(&input.0.new_email, &input.0.new_password, &db)?;
+    let cookie_token = Cookie::build("BrancaToken", result.to_owned())
+        //.domain("www.rust-lang.org")
+        .max_age(Duration::days(1))
+        .expires(OffsetDateTime::now_utc() + Duration::days(1))
+        .path("/")
+        .same_site(SameSite::Lax)
+        //.secure(true)
+        .http_only(true)
+        .finish();
+    let cookie_checker = Cookie::build("CookieChecker", "")
+        //.domain("www.rust-lang.org")
+        .max_age(Duration::days(1))
+        .expires(OffsetDateTime::now_utc() + Duration::days(1))
+        .path("/")
+        .same_site(SameSite::Lax)
+        //.secure(true)
+        .http_only(false)
+        .finish();
+    Ok(HttpResponse::Ok()
+        .cookie(cookie_token)
+        .cookie(cookie_checker)
+        .finish())
 }
 
 pub async fn delete(
@@ -54,25 +78,53 @@ pub async fn login(
     input.validate()?;
     let db = pool.get()?;
     let result = db::users::auth(&input.0.email, &input.0.password, &db)?;
-    let c = Cookie::build("BrancaToken", result.to_owned())
+    let cookie_token = Cookie::build("BrancaToken", result.to_owned())
         //.domain("www.rust-lang.org")
+        .max_age(Duration::days(1))
+        .expires(OffsetDateTime::now_utc() + Duration::days(1))
         .path("/")
+        .same_site(SameSite::Lax)
         //.secure(true)
         .http_only(true)
         .finish();
-    Ok(HttpResponse::Ok().cookie(c).finish())
+    let cookie_checker = Cookie::build("CookieChecker", "")
+        //.domain("www.rust-lang.org")
+        .max_age(Duration::days(1))
+        .expires(OffsetDateTime::now_utc() + Duration::days(1))
+        .path("/")
+        .same_site(SameSite::Lax)
+        //.secure(true)
+        .http_only(false)
+        .finish();
+    Ok(HttpResponse::Ok()
+        .cookie(cookie_token)
+        .cookie(cookie_checker)
+        .finish())
 }
 
 pub async fn logout() -> Result<HttpResponse, ApiError> {
-    let c = Cookie::build("BrancaToken", "")
+    let cookie_token = Cookie::build("BrancaToken", "")
         //.domain("www.rust-lang.org")
         .path("/")
         //.secure(true)
         .http_only(true)
         .max_age(Duration::zero())
         .expires(OffsetDateTime::now_utc() - Duration::days(365))
+        .same_site(SameSite::Lax)
         .finish();
-    Ok(HttpResponse::Ok().cookie(c).finish())
+    let cookie_checker = Cookie::build("CookieChecker", "")
+        //.domain("www.rust-lang.org")
+        .path("/")
+        //.secure(true)
+        .http_only(true)
+        .max_age(Duration::zero())
+        .expires(OffsetDateTime::now_utc() - Duration::days(365))
+        .same_site(SameSite::Lax)
+        .finish();
+    Ok(HttpResponse::Ok()
+        .cookie(cookie_token)
+        .cookie(cookie_checker)
+        .finish())
 }
 
 pub async fn get(pool: web::Data<db::DbPool>, req: HttpRequest) -> Result<HttpResponse, ApiError> {

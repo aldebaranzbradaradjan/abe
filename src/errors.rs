@@ -113,6 +113,12 @@ impl From<RamhornsError> for ApiError {
     }
 }
 
+impl From<actix_web::Error> for ApiError {
+    fn from(error: actix_web::Error) -> ApiError {
+        ApiError::InternalError(error.to_string())
+    }
+}
+
 impl From<ValidationErrors> for ApiError {
     fn from(errors: ValidationErrors) -> ApiError {
         let e = errors

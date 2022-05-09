@@ -6,6 +6,18 @@ use crate::errors::ApiError;
 use crate::models::posts::*;
 use crate::templates::blog::*;
 
+pub async fn register_login() -> Result<HttpResponse, ApiError> {
+    Ok(HttpResponse::Ok()
+        .content_type("text/html")
+        .body(register_login_template()?))
+}
+
+pub async fn reset_password() -> Result<HttpResponse, ApiError> {
+    Ok(HttpResponse::Ok()
+        .content_type("text/html")
+        .body(reset_password_template()?))
+}
+
 pub async fn post(
     input: web::Path<PostId>,
     pool: web::Data<db::DbPool>,
@@ -48,10 +60,19 @@ pub async fn home(pool: web::Data<db::DbPool>) -> Result<HttpResponse, ApiError>
         .body(home_template(posts, Some(1))?))
 }
 
+pub async fn profile() -> Result<HttpResponse, ApiError> {
+    Ok(HttpResponse::Ok()
+        .content_type("text/html")
+        .body(profile_template()?))
+}
+
 pub fn configure(app: &mut web::ServiceConfig) {
     app.service(
         web::scope("/blog")
             .route("", web::get().to(home))
+            .route("/login", web::get().to(register_login))
+            .route("/profile", web::get().to(profile))
+            .route("/reset_password", web::get().to(reset_password))
             .route("/post/{id}", web::get().to(post))
             .route("/{page}/{page_size}", web::get().to(page)),
     );
