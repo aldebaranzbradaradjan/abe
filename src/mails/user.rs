@@ -3,8 +3,8 @@ use crate::mails::SendableEmail;
 use crate::templates as template;
 use std::env;
 
-pub fn create_register_email(mail: &str, username: &str) -> Result<SendableEmail, ApiError> {
-    let content = template::mail::register_user(username)?;
+pub fn create_register_email(mail: &str, username: &str, token: &str) -> Result<SendableEmail, ApiError> {
+    let content = template::mail::register_user(mail, username, token)?;
     Ok(SendableEmail {
         to: mail.into(),
         title: format!("Welcome on {} !", env::var("PLATFORM_NAME")?),

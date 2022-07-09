@@ -23,19 +23,29 @@ struct EmailButtons<'a> {
     url: &'a str,
 }
 
-pub fn register_user(username: &str) -> Result<String, ApiError> {
+pub fn register_user(mail: &str, username: &str, token: &str,) -> Result<String, ApiError> {
     let mut tpls = Ramhorns::lazy(env::var("TEMPLATES_PATH")?)?;
     let tpl = tpls.from_file("mail.html")?;
 
+    let url = format!("{}/api/v1/user/valid_account/{}/{}", env::var("DOMAIN")?, mail, token);
+    let mut buttons = Vec::new();
+
+    buttons.push(EmailButtons {
+        text: "Validate your account",
+        url: &url,
+    });
+
     let text = format!("You are now register on {} !", env::var("PLATFORM_NAME")?);
+
     let mut paragraphs = Vec::new();
     paragraphs.push(EmailParagraphs { paragraph: &text });
+    paragraphs.push(EmailParagraphs { paragraph: "To finish your inscription click on the button below !" });
 
     let content = EmailContent {
         supheader: "",
         header: &format!("Welcome, {}", username),
-        paragraphs: paragraphs,
-        buttons: Vec::new(),
+        paragraphs,
+        buttons,
     };
 
     Ok(tpl.render(&content))
@@ -73,8 +83,8 @@ pub fn reset_token(mail: &str, username: &str, token: &str) -> Result<String, Ap
     let content = EmailContent {
         supheader: "",
         header: &format!("{} : Password Reset", env::var("PLATFORM_NAME")?),
-        paragraphs: paragraphs,
-        buttons: buttons,
+        paragraphs,
+        buttons,
     };
 
     Ok(tpl.render(&content))
@@ -95,7 +105,7 @@ pub fn change_password_success(mail: &str, username: &str) -> Result<String, Api
     let content = EmailContent {
         supheader: "",
         header: &format!("{} : Password Reset Success", env::var("PLATFORM_NAME")?),
-        paragraphs: paragraphs,
+        paragraphs,
         buttons: Vec::new(),
     };
 

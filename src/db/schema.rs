@@ -28,17 +28,17 @@ table! {
     users (id) {
         id -> Int4,
         is_admin -> Bool,
+        is_validated -> Bool,
         username -> Varchar,
         email -> Varchar,
         token_key -> Text,
         password_hash -> Text,
         reset_token -> Text,
+        validation_token -> Text,
         created_at -> Timestamp,
         updated_at -> Timestamp,
     }
 }
-
-joinable!(comments -> users (user_id));
 
 allow_tables_to_appear_in_same_query!(
     comments,

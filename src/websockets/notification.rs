@@ -124,7 +124,7 @@ impl Handler<Disconnect> for NotificationServer {
     }
 }
 
-/// Handler for Disconnect message.
+/// Handler for New Comment message.
 impl Handler<NewComment> for NotificationServer {
     type Result = ();
 

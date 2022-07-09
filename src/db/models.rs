@@ -17,6 +17,7 @@ mod naive_date_time_serializer {
 pub struct User {
     pub id: i32,
     pub is_admin: bool,
+    pub is_validated: bool,
     pub username: String,
     pub email: String,
     #[serde(skip_serializing)]
@@ -25,6 +26,8 @@ pub struct User {
     pub password_hash: String,
     #[serde(skip_serializing)]
     pub reset_token: String,
+    #[serde(skip_serializing)]
+    pub validation_token: String,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
@@ -38,12 +41,15 @@ pub struct NewUser<'a> {
     pub token_key: &'a str,
     pub password_hash: &'a str,
     pub reset_token: &'a str,
+    pub validation_token: &'a str,
 }
 #[derive(Serialize, Queryable, Debug)]
 pub struct MinimalUser {
     pub id: i32,
     #[serde(skip_serializing)]
     pub is_admin: bool,
+    #[serde(skip_serializing)]
+    pub is_validated: bool,
     pub username: String,
     #[serde(skip_serializing)]
     pub email: String,
@@ -53,6 +59,8 @@ pub struct MinimalUser {
     pub password_hash: String,
     #[serde(skip_serializing)]
     pub reset_token: String,
+    #[serde(skip_serializing)]
+    pub validation_token: String,
     #[serde(skip_serializing)]
     pub created_at: NaiveDateTime,
     #[serde(skip_serializing)]

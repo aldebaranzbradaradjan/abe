@@ -31,6 +31,16 @@ pub struct AuthUser {
     #[validate(length(min = 5))]
     pub password: String,
 }
+
+#[derive(Debug, Serialize, Deserialize, Validate)]
+pub struct DeleteUser {
+    #[validate(email)]
+    pub email: String,
+    #[validate(length(min = 5))]
+    pub password: String,
+    pub anonymise: bool,
+}
+
 #[derive(Debug, Serialize, Deserialize, Validate)]
 pub struct ChangePassword {
     #[validate(length(min = 5))]
@@ -51,4 +61,11 @@ pub struct ResetPassword {
     pub email: String,
     pub token: String,
     pub password: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Validate)]
+pub struct TokenValidation {
+    #[validate(email)]
+    pub email: String,
+    pub token: String,
 }

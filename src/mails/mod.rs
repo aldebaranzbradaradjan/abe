@@ -29,6 +29,7 @@ pub fn send_mail(mail: SendableEmail) -> Result<(), ApiError> {
             env::var("SMTP_PASSWORD")?,
         ))
         .transport();
+        
     mailer.send(email.into())?;
     Ok(())
 }

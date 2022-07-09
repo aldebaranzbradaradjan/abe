@@ -1,9 +1,10 @@
 use super::DbConnection;
 use super::{models::*, schema::users, schema::users::dsl::*};
 
+use crate::db::comments::*;
 use crate::errors::*;
-use crate::models::users::*;
 use crate::middlewares::session::JsonBrancaToken;
+use crate::models::users::*;
 
 extern crate chrono;
 use chrono::offset::Utc;
@@ -36,6 +37,7 @@ pub fn register(admin: bool, user: &CreateUser, db: &DbConnection) -> Result<i32
         token_key: &key,
         password_hash: &hash,
         reset_token: "",
+        validation_token: "",
     };
     let created_user: User = diesel::insert_into(users::table)
         .values(&new_user)
@@ -45,7 +47,10 @@ pub fn register(admin: bool, user: &CreateUser, db: &DbConnection) -> Result<i32
 
 pub fn update(_id: &i32, user: &UpdateUser, db: &DbConnection) -> Result<(), ApiError> {
     let current_user = get_user_by_id(_id, db)?;
-    let hash = hash(format!("{}{}", user.new_email, user.new_password), DEFAULT_COST)?;
+    let hash = hash(
+        format!("{}{}", user.new_email, user.new_password),
+        DEFAULT_COST,
+    )?;
     diesel::update(users.find(current_user.id))
         .set((
             email.eq(&user.new_email),
@@ -56,7 +61,12 @@ pub fn update(_id: &i32, user: &UpdateUser, db: &DbConnection) -> Result<(), Api
     Ok(())
 }
 
-pub fn delete(_id: &i32, db: &DbConnection) -> Result<(), ApiError> {
+pub fn delete_or_anonymise(_id: &i32, _anonymise: bool, db: &DbConnection) -> Result<(), ApiError> {
+    if _anonymise {
+        anonymize_by_user_id(_id, db) ?
+    } else {
+        delete_by_user_id(_id, db) ?
+    };
     diesel::delete(users.filter(id.eq(_id))).execute(db)?;
     Ok(())
 }
@@ -71,6 +81,11 @@ pub fn get_user_by_email(mail: &str, db: &DbConnection) -> Result<User, ApiError
 
 pub fn auth(mail: &str, pwd: &str, db: &DbConnection) -> Result<String, ApiError> {
     let user: User = users.filter(users::email.eq(mail)).first(db)?;
+    if !user.is_validated {
+        return Err(ApiError::InternalError(
+            "The account exist but isn't validated".to_owned(),
+        ));
+    }
     match verify(format!("{}{}", mail, pwd), &user.password_hash)? {
         true => Ok(create_token(user)?),
         _ => Err(ApiError::InternalError(
@@ -130,6 +145,38 @@ pub fn verify_reset_token(mail: &str, token: &str, db: &DbConnection) -> Result<
     let rtoken = branca.decode(&rtoken, 86400)?;
     match rtoken == token.as_bytes().to_vec() {
         true => Ok(()),
+        _ => Err(ApiError::InternalError("Invalid reset token".to_owned())),
+    }
+}
+
+pub fn generate_validation_token(mail: &str, db: &DbConnection) -> Result<String, ApiError> {
+    let user = get_user_by_email(mail, db)?;
+    let rand = rand::thread_rng()
+        .sample_iter(&Alphanumeric)
+        .take(6)
+        .collect::<String>();
+    let key = user.token_key.as_bytes().to_vec();
+    let mut branca = Branca::new(&key)?;
+    let token = branca.encode(&rand.as_bytes())?;
+    diesel::update(users.filter(email.eq(mail)))
+        .set(validation_token.eq(token))
+        .execute(db)?;
+    Ok(rand)
+}
+
+pub fn verify_validation_token(mail: &str, token: &str, db: &DbConnection) -> Result<(), ApiError> {
+    let user = get_user_by_email(mail, db)?;
+    let key = user.token_key.as_bytes().to_vec();
+    let rtoken = user.validation_token;
+    let branca = Branca::new(&key)?;
+    let rtoken = branca.decode(&rtoken, 86400)?;
+    match rtoken == token.as_bytes().to_vec() {
+        true => {
+            diesel::update(users.filter(email.eq(mail)))
+                .set(is_validated.eq(true))
+                .execute(db)?;
+            Ok(())
+        }
         _ => Err(ApiError::InternalError("Invalid reset token".to_owned())),
     }
 }

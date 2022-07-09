@@ -17,6 +17,8 @@ use crate::db::LoadPaginated;
 
 use crate::websockets::notification as notif_server;
 
+joinable!(comments -> users (user_id));
+
 pub fn create(
     user_id_: &i32,
     comment: CreateComment,
@@ -59,7 +61,20 @@ pub fn create(
 }
 
 pub fn get(id_: &i32, db: &DbConnection) -> Result<(Comment, MinimalUser), ApiError> {
-    Ok(comments::table.inner_join(users::table).filter(comments::id.eq(id_)).first(db)?)
+    Ok(comments::table
+        .inner_join(users::table)
+        .filter(comments::id.eq(id_))
+        .first(db)?)
+}
+
+pub fn delete_by_user_id(id_: &i32, db: &DbConnection) -> Result<usize, ApiError> {
+    Ok(diesel::delete(comments.filter(comments::user_id.eq(id_))).execute(db)?)
+}
+
+pub fn anonymize_by_user_id(id_: &i32, db: &DbConnection) -> Result<usize, ApiError> {
+    Ok(diesel::update(comments.filter(comments::user_id.eq(id_)))
+        .set(comments::user_id.eq(0))
+        .execute(db)?)
 }
 
 pub fn list(

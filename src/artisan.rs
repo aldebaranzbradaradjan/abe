@@ -114,7 +114,7 @@ fn main() -> Result<(), ApiError> {
         }
 
         Cli::SendRegisterMail { to, username } => {
-            mail::send_mail(mail::user::create_register_email(&to, &username)?)?;
+            //mail::send_mail(mail::user::create_register_email(&to, &username)?)?;
             Ok(())
         }
 

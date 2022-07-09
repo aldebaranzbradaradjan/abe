@@ -21,49 +21,55 @@
 
             <h2>Données du compte :</h2>
             <div class="flex-row">
-                <h3>Nom / Pseudo :</h3>
-                <p id="displayed_name">Aldebaran</p>
+                Nom / Pseudo :
+                <div id="displayed_name"></div>
             </div>
             <div class="flex-row">
-                <h3>Email: </h3>
-                <p id="displayed_email">e.k.******@gmail.com</p>
+                Email:
+                <div id="displayed_email"></div>
             </div>
 
             <h2>Mise à jour du compte :</h2>
             <form id="update-account" class="flex-col" method="post">
-                <input type="text" id="name" name="name" placeholder="Nom / Pseudo" required="required" />
+                Champs obligatoires :
                 <input type="email" id="email" name="email" placeholder="Courriel actuel" required="required" />
-                <input type="email" id="new-email-1" name="emailn1" placeholder="Nouveau courriel" required="required" />
-                <input type="email" id="new-email-2" name="emailn2" placeholder="Nouveau courriel (encore)" required="required" />
-                <input type="password" id="current-password" name="password" placeholder="Mot de passe actuel" required="required" />
-                <input type="password" id="new-password-1" name="passwordn1" placeholder="Nouveau mot de passe" required="required" />
-                <input type="password" id="new-password-2" name="passwordn2" placeholder="Nouveau mot de passe (encore)" required="required" />
+                <input type="password" id="password" name="password" placeholder="Mot de passe actuel" required="required" />
+
+                <div>
+                    <input onclick="toggleCheckBoxes()" type="checkbox" id="change-name">
+                    <label for="change-name">Changer de pseudo</label>
+                </div>
+                <input type="text" id="name" name="name" placeholder="Nom / Pseudo" />
+
+                <div>
+                    <input onclick="toggleCheckBoxes()" type="checkbox" id="change-email">
+                    <label for="change-email">Changer de courriel</label>
+                </div>
+                <input type="email" id="new-email-1" name="emailn1" placeholder="Nouveau courriel" />
+                <input type="email" id="new-email-2" name="emailn2" placeholder="Nouveau courriel (encore)" />
+                <div>
+                    <input onclick="toggleCheckBoxes()" type="checkbox" id="change-password">
+                    <label for="change-password">Changer de mot de passe</label>
+                </div>
+                <input type="password" id="new-password-1" name="passwordn1" placeholder="Nouveau mot de passe" />
+                <input type="password" id="new-password-2" name="passwordn2" placeholder="Nouveau mot de passe (encore)" />
                 <span id="error" class="hidden-important" aria-live="polite"></span>
                 <hr>
                 <input type="submit" value="Mettre à jour" />
             </form>
 
-            <h2>Préférences :</h2>
-            <div>
-                <input type="color" id="comment" name="comment" value="#e66465">
-                <label for="comment">Couleur de vos commentaires</label>
-            </div>
-            <div>
-                <input type="color" id="pcolor1" name="pcolor1" value="#e66465">
-                <label for="pcolor1">Couleur primaire</label>
-            </div>
-            <div>
-                <input type="color" id="pcolor2" name="pcolor2" value="#e66465">
-                <label for="pcolor2">Couleur secondaire</label>
-            </div>
-            <button id="show-connect">Mettre à jour vos préférences</button>
-
             <h2>Suppression du compte :</h2>
-            <p>La suppression de votre compte entrainera la suppression de toutes vos données utilisateur.</p>
-            <p>Vous pourrez également, si vous le souhaitez, anonymiser vos commentaires.</p>
-            <p>Sinon ils seront supprimés en même temps que votre compte.</p>
-            <p>Cette action est irréversible.</p>
-            <button id="show-connect">Supprimer</button>
+            La suppression de votre compte entrainera la suppression de toutes vos données utilisateur et l'anonymisation de vos commentaires. Vous pourrez également, si vous le souhaitez, supprimez vos commentaires en décochant la coche ci-dessous. Cette action
+            est irréversible.
+
+            <p>Champs obligatoires :</p>
+            <input type="email" id="delete_email" name="email" placeholder="Courriel" required="required" />
+            <input type="password" id="delete_password" name="password" placeholder="Mot de passe" required="required" />
+            <div>
+                <input onclick="toggleCheckBoxes()" type="checkbox" id="anonymise" checked>
+                <label for="anonymise">Anonymiser les commentaires</label>
+            </div>
+            <button id="show-connect" onclick="deleteAccount()">Supprimer</button>
 
         </article>
 
@@ -127,17 +133,86 @@
     </main>
 
     <script>
+        function toggleCheckBoxes() {
+            const checked_e = document.getElementById("change-email").checked
+            document.getElementById("new-email-1").style.display = checked_e ? "block" : "none"
+            document.getElementById("new-email-2").style.display = checked_e ? "block" : "none"
+            const checked_p = document.getElementById("change-password").checked
+            document.getElementById("new-password-1").style.display = checked_p ? "block" : "none"
+            document.getElementById("new-password-2").style.display = checked_p ? "block" : "none"
+            const checked_n = document.getElementById("change-name").checked
+            document.getElementById("name").style.display = checked_n ? "block" : "none"
+        }
+
+        async function deleteAccount() {
+            const anonymise = document.getElementById("anonymise").checked
+            const response = await fetch("/api/v1/user/user_restricted/delete", {
+                method: "DELETE",
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    email: document.getElementById("delete_email").value,
+                    password: document.getElementById("delete_password").value,
+                    anonymise: document.getElementById("anonymise").checked
+                })
+            })
+            if (response.ok) window.location.href = "/blog"
+        }
+
         async function update_account(event) {
             event.preventDefault()
+
+            const checked_e = document.getElementById("change-email").checked
+            const checked_p = document.getElementById("change-password").checked
+            const checked_n = document.getElementById("change-name").checked
+
+            let n_name, n_email, n_password
+
+            if (checked_e) {
+                const new_email_1 = document.getElementById("new-email-1").value
+                const new_email_2 = document.getElementById("new-email-2").value
+                if (new_email_1 !== new_email_2) {
+                    document.getElementById("error").innerHTML = "Les emails ne correspondent pas"
+                    return
+                }
+                n_email = new_email_1
+            } else {
+                n_email = document.getElementById("email").value
+            }
+
+            if (checked_p) {
+                const new_password_1 = document.getElementById("new-password-1").value
+                const new_password_2 = document.getElementById("new-password-2").value
+                if (new_password_1 !== new_password_2) {
+                    document.getElementById("error").innerHTML = "Les mots de passe ne correspondent pas"
+                    return
+                }
+                n_password = new_password_1
+            } else {
+                n_password = document.getElementById("password").value
+            }
+
+            if (checked_n) {
+                const name = document.getElementById("name").value
+                if (name.length < 3) {
+                    document.getElementById("error").innerHTML = "Le nom doit contenir au moins 3 caractères"
+                    return
+                }
+                n_name = name
+            } else {
+                n_name = document.getElementById("displayed_name").innerHTML
+            }
 
             const settings = {
                 method: "PUT",
                 body: JSON.stringify({
-                    "old_password": document.getElementById("current-password").value,
-                    "new_password": document.getElementById("new-password-1").value,
+                    "old_password": document.getElementById("password").value,
+                    "new_password": n_password,
                     "old_email": document.getElementById("email").value,
-                    "new_email": document.getElementById("new-email-1").value,
-                    "username": document.getElementById("name").value
+                    "new_email": n_email,
+                    "username": n_name
                 }),
                 headers: {
                     "Accept": "application/json",
@@ -193,6 +268,7 @@
 
             document.getElementById("update-account").addEventListener("submit", update_account, true)
             get_account()
+            toggleCheckBoxes()
         }
     </script>
 

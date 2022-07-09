@@ -1,4 +1,5 @@
 use actix_web::cookie::SameSite;
+use actix_web::http;
 use actix_web::{cookie::Cookie, web, HttpRequest, HttpResponse};
 use validator::Validate;
 
@@ -19,11 +20,24 @@ pub async fn register(
     input.validate()?;
     let db = pool.get()?;
     db::users::register(false, &input.0, &db)?;
+    let token = db::users::generate_validation_token(&input.0.email, &db)?;
     mail::post_email(
-        mail::user::create_register_email(&input.0.email, &input.0.username)?,
+        mail::user::create_register_email(&input.0.email, &input.0.username, &token)?,
         postman.get_ref(),
     )?;
     Ok(HttpResponse::Ok().finish())
+}
+
+pub async fn validate_account(
+    path: web::Path<(String, String)>,
+    pool: web::Data<db::DbPool>,
+) -> Result<HttpResponse, ApiError> {
+    let (email, token) = path.to_owned();
+    let db = pool.get()?;
+    db::users::verify_validation_token(&email, &token, &db)?;
+    Ok(HttpResponse::Found()
+        .header(http::header::LOCATION, "/blog/login")
+        .finish())
 }
 
 pub async fn update(
@@ -63,12 +77,21 @@ pub async fn update(
 
 pub async fn delete(
     pool: web::Data<db::DbPool>,
+    input: web::Json<DeleteUser>,
     req: HttpRequest,
 ) -> Result<HttpResponse, ApiError> {
     let db = pool.get()?;
     let j = extract_json_token(req)?;
-    db::users::delete(&j.id, &db)?;
-    Ok(HttpResponse::Ok().finish())
+    let user = db::users::get_user_by_id(&j.id, &db)?;
+    if user.email != input.0.email {
+        return Err(ApiError::InternalError(
+            "L'email fournit ne correspond pas à l'utilisateur connecté !".to_owned(),
+        ));
+    }
+    db::users::auth(&input.0.email, &input.0.password, &db)?;
+    db::users::delete_or_anonymise(&j.id, input.0.anonymise, &db)?;
+    logout().await
+    //Ok(HttpResponse::Ok().finish())
 }
 
 pub async fn login(
@@ -188,6 +211,10 @@ pub fn configure(app: &mut web::ServiceConfig) {
                 .route("/register", web::post().to(register))
                 .route("/forgot_password", web::post().to(forgot_password))
                 .route("/reset_password", web::post().to(reset_password))
+                .route(
+                    "/valid_account/{email}/{token}",
+                    web::get().to(validate_account),
+                )
                 .service(
                     web::scope("/user_restricted")
                         .wrap(BrancaSession(Level::User))
