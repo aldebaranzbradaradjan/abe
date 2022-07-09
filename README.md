@@ -4,14 +4,14 @@
 
 Abe is a small project that I started doing my blog. I use my skeleton-api as a base and build the rest on it.
 The point of this project is to learn, and I'm sharing it because I thought one more resource in Rust wouldn't hurt.
-So, it's not a mature or bug-free product, but I use it and if we are not demanding it does the trick.
+So, it's not a mature or bug-free product, but I use it and it does the trick.
 
 The backend is in Rust and uses Actix to serve the API and the blog with templates.
 The Dashboard (responsible for creating / updating / deleting / publishing articles) is a Svelte app with a web assembly module that uses Yew for the editor.
-Because why not. It's an admin dashboard, right now I don't care if it's not clean (or if it's a mess), but maybe I'll rewrite it someday.
+Because why not. It's an admin dashboard, right now I don't care if it's not clean (or if it's a mess), but I'll rewrite it someday.
 
 # Setup
-To compile we need an valid Rust environnement : https://rustup.rs/, tthe diesel_cli : http://diesel.rs/guides/getting-started/.
+To compile we need a valid Rust environnement : https://rustup.rs/, tthe diesel_cli : http://diesel.rs/guides/getting-started/.
 We also need an postgresql database, a .env containing informations such as the name of your platform, various paths, and info about the API (see example.env).
 For admin dashboard we need Svelte (so npm install etc) and for the Yew module we need to install wasm-pack : https://rustwasm.github.io/wasm-pack/installer/
 
