@@ -56,6 +56,18 @@ pub fn update(_id: &i32, user: &UpdateUser, db: &DbConnection) -> Result<(), Api
             email.eq(&user.new_email),
             password_hash.eq(hash),
             username.eq(&user.username),
+            updated_at.eq(Utc::now().naive_utc()),
+        ))
+        .execute(db)?;
+    Ok(())
+}
+
+pub fn accept_cookies(_id: &i32, db: &DbConnection) -> Result<(), ApiError> {
+    let user = get_user_by_id(_id, db)?;
+    diesel::update(users.find(user.id))
+        .set((
+            cookies_validated.eq(true),
+            updated_at.eq(Utc::now().naive_utc()),
         ))
         .execute(db)?;
     Ok(())

@@ -717,6 +717,51 @@ input::placeholder {
     text-align: center;
 }
 
+#cookie_popup {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    background-color: #0000007d;
+    box-shadow: 0 0 15px rgba(0, 0, 0, .4);
+    backdrop-filter: blur(30px);
+    font-family: monospace !important;
+    font-size: clamp(0.5rem, -0.875rem + 8.3332vmin, 1rem) !important;
+    color: lime !important;
+    height: 30vh;
+    overflow-y: auto;
+    bottom: 0px;
+    right: 0px;
+    width: calc(100% - 20px);
+    margin: 10px;
+}
+
+#terminal_history {
+    border-radius: 10px 10px 0 0;
+    padding: 10px;
+}
+
+#terminal_input_text {
+    background-color: transparent;
+    border-width: 0;
+    outline: none;
+    padding: 0;
+    color: lime;
+    flex-grow: 100;
+}
+
+#terminal_input_flex-row {
+    margin: -10px 10px 10px 10px;
+}
+
+.terminal_dir {
+    color: rgb(190, 255, 196);
+}
+
+.no_wrap {
+    white-space: nowrap;
+}
+
 @media screen and (max-height: 730px) and (max-width: 1200px) {
     .cards-container {
         height: unset;

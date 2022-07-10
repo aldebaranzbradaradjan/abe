@@ -28,6 +28,7 @@ pub struct User {
     pub reset_token: String,
     #[serde(skip_serializing)]
     pub validation_token: String,
+    pub cookies_validated: bool,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
@@ -61,6 +62,8 @@ pub struct MinimalUser {
     pub reset_token: String,
     #[serde(skip_serializing)]
     pub validation_token: String,
+    #[serde(skip_serializing)]
+    pub cookies_validated: bool,
     #[serde(skip_serializing)]
     pub created_at: NaiveDateTime,
     #[serde(skip_serializing)]

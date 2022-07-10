@@ -203,19 +203,32 @@ async function renderComments(node, post_id, parent_id, page_size, page) {
     }
 }
 
+async function updateCommentCounter() {
+    const comment_counter = document.getElementById("comment_counter")
+    const count = await getCountComments(postId, null)
+    if (count > 0) {
+        comment_counter.innerText = count + " commentaires"
+    } else {
+        comment_counter.innerText = "Il n'y a pas encore de commentaires, écrivez le premier !"
+    }
+}
+
 async function initComments() {
     const count = await getCountComments(postId, null)
     if (count > 0) {
         let h = document.createElement("h2")
         h.className = "header"
+        h.id = "comment_counter"
         h.innerText = count + " commentaires"
         document.getElementById("comments").appendChild(h)
         if (checkCookie("CookieChecker")) appendEditor(null, null)
         await renderComments(document.getElementById("comments"), postId, null, 10, 1)
     } else {
-        let p = document.createElement("p")
-        p.innerText = "Il n'y a pas encore de commentaires, écrivez le premier !"
-        document.getElementById("comments").appendChild(p)
+        let h = document.createElement("h2")
+        h.className = "header"
+        h.id = "comment_counter"
+        h.innerText = "Il n'y a pas encore de commentaires, écrivez le premier !"
+        document.getElementById("comments").appendChild(h)
         if (checkCookie("CookieChecker")) appendEditor(null, null)
     }
 
@@ -339,9 +352,10 @@ window.onload = async function() {
 
     // Écouter les messages
     socket.addEventListener('message', async function(event) {
-        console.log(event.data)
+
         let cmd = event.data.trim().split(" ");
         if (cmd[0] === "/new_comment" && !isNaN(parseInt(cmd[1]))) {
+            await updateCommentCounter()
             const cmt = await getComment(parseInt(cmd[1]))
 
             let more_than_one_comment = null

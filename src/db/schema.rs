@@ -35,6 +35,7 @@ table! {
         password_hash -> Text,
         reset_token -> Text,
         validation_token -> Text,
+        cookies_validated -> Bool,
         created_at -> Timestamp,
         updated_at -> Timestamp,
     }

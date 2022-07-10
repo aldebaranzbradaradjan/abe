@@ -1,8 +1,9 @@
-use actix_web::{web, HttpResponse};
+use actix_web::{web, HttpRequest, HttpResponse};
 use validator::Validate;
 
 use crate::db;
 use crate::errors::ApiError;
+use crate::middlewares::session::extract_json_token;
 use crate::models::posts::*;
 use crate::templates::blog::*;
 
@@ -21,21 +22,33 @@ pub async fn reset_password() -> Result<HttpResponse, ApiError> {
 pub async fn post(
     input: web::Path<PostId>,
     pool: web::Data<db::DbPool>,
+    req: HttpRequest,
 ) -> Result<HttpResponse, ApiError> {
     input.validate()?;
     let db = pool.get()?;
+    let j = extract_json_token(req);
+    let cookie_accepted = match j {
+        Ok(j) => db::users::get_user_by_id(&j.id, &db)?.cookies_validated,
+        Err(_) => true,
+    };
     let post = db::posts::get(&input.0.id, PostState::Published, &db)?;
     Ok(HttpResponse::Ok()
         .content_type("text/html")
-        .body(post_template(post)?))
+        .body(post_template(post, cookie_accepted)?))
 }
 
 pub async fn page(
     input: web::Path<PaginationParamsShort>,
     pool: web::Data<db::DbPool>,
+    req: HttpRequest,
 ) -> Result<HttpResponse, ApiError> {
     input.validate()?;
     let db = pool.get()?;
+    let j = extract_json_token(req);
+    let cookie_accepted = match j {
+        Ok(j) => db::users::get_user_by_id(&j.id, &db)?.cookies_validated,
+        Err(_) => true,
+    };
     let params = PaginationParams {
         page: input.0.page,
         page_size: input.0.page_size,
@@ -44,11 +57,16 @@ pub async fn page(
     let posts = db::posts::list(params, &db)?;
     Ok(HttpResponse::Ok()
         .content_type("text/html")
-        .body(home_template(posts, input.0.page)?))
+        .body(home_template(posts, input.0.page, cookie_accepted)?))
 }
 
-pub async fn home(pool: web::Data<db::DbPool>) -> Result<HttpResponse, ApiError> {
+pub async fn home(pool: web::Data<db::DbPool>, req: HttpRequest) -> Result<HttpResponse, ApiError> {
     let db = pool.get()?;
+    let j = extract_json_token(req);
+    let cookie_accepted = match j {
+        Ok(j) => db::users::get_user_by_id(&j.id, &db)?.cookies_validated,
+        Err(_) => true,
+    };
     let params = PaginationParams {
         page: Some(1),
         page_size: Some(4),
@@ -57,13 +75,19 @@ pub async fn home(pool: web::Data<db::DbPool>) -> Result<HttpResponse, ApiError>
     let posts = db::posts::list(params, &db)?;
     Ok(HttpResponse::Ok()
         .content_type("text/html")
-        .body(home_template(posts, Some(1))?))
+        .body(home_template(posts, Some(1), cookie_accepted)?))
 }
 
-pub async fn profile() -> Result<HttpResponse, ApiError> {
+pub async fn profile(pool: web::Data<db::DbPool>, req: HttpRequest,) -> Result<HttpResponse, ApiError> {
+    let db = pool.get()?;
+    let j = extract_json_token(req);
+    let cookie_accepted = match j {
+        Ok(j) => db::users::get_user_by_id(&j.id, &db)?.cookies_validated,
+        Err(_) => true,
+    };
     Ok(HttpResponse::Ok()
         .content_type("text/html")
-        .body(profile_template()?))
+        .body(profile_template(cookie_accepted)?))
 }
 
 pub fn configure(app: &mut web::ServiceConfig) {

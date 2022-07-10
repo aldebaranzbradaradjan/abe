@@ -27,6 +27,7 @@ struct PostContent<'a> {
     toc: &'a str,
     body: &'a str,
     date: String,
+    cookie_popup: bool
 }
 
 #[derive(Content)]
@@ -46,11 +47,13 @@ struct BlogContent<'a> {
     total_pages: &'a i64,
     prev_page: Option<&'a i64>,
     next_page: Option<&'a i64>,
+    cookie_popup: bool
 }
 
 #[derive(Content)]
 struct TitleContent<'a> {
     title: &'a str,
+    cookie_popup: bool
 }
 
 pub fn add_markdown_toc(content: &str) -> Result<Vec<String>, ApiError> {
@@ -256,7 +259,7 @@ pub fn reset_password_template() -> Result<String, ApiError> {
     Ok(tpls.from_file("blog_reset_password.html")?.render(&content))
 }
 
-pub fn post_template(post: Post) -> Result<String, ApiError> {
+pub fn post_template(post: Post, cookie_accepted: bool) -> Result<String, ApiError> {
     let mut tpls = Ramhorns::lazy(env::var("TEMPLATES_PATH")?)?;
     let post_vec = add_markdown_toc(&post.body)?;
     let posts_content = PostContent {
@@ -266,11 +269,12 @@ pub fn post_template(post: Post) -> Result<String, ApiError> {
         abstract_: &post.abstract_,
         body: &render_markdown(&post_vec[1], true),
         date: post.created_at.format("%Y-%m-%d %H:%M:%S").to_string(),
+        cookie_popup: !cookie_accepted
     };
     Ok(tpls.from_file("blog_post.html")?.render(&posts_content))
 }
 
-pub fn home_template(posts: (Vec<Post>, i64), page: Option<i64>) -> Result<String, ApiError> {
+pub fn home_template(posts: (Vec<Post>, i64), page: Option<i64>, cookie_accepted: bool) -> Result<String, ApiError> {
     let mut tpls = Ramhorns::lazy(env::var("TEMPLATES_PATH")?)?;
     let mut posts_content = Vec::new();
     for post in posts.0.iter() {
@@ -304,16 +308,18 @@ pub fn home_template(posts: (Vec<Post>, i64), page: Option<i64>) -> Result<Strin
                 }
                 _ => None,
             },
+            cookie_popup: !cookie_accepted
         }),
     ))
 }
 
-pub fn profile_template() -> Result<String, ApiError> {
+pub fn profile_template(cookie_accepted: bool) -> Result<String, ApiError> {
     let mut tpls = Ramhorns::lazy(env::var("TEMPLATES_PATH")?)?;
     
     Ok(tpls.from_file("blog_profile.html")?.render(
         &(TitleContent {
             title: "Profil",
+            cookie_popup: !cookie_accepted
         }),
     ))
 }

@@ -12,6 +12,9 @@
     <script type="text/javascript">
         let postId = parseInt("{{id}}")
     </script>
+    {{#cookie_popup}}
+    <script type="text/javascript" src="/public/js/terminal.min.js"></script>
+    {{/cookie_popup}}
     <script type="text/javascript" src="/public/js/common.min.js"></script>
     <script type="text/javascript" src="/public/js/post.min.js"></script>
 </head>
@@ -151,7 +154,23 @@
             </div>
             <div contenteditable=true class="editor" data-ph="Tapez votre texte ici..."></div>
         </div>
-    </template>
+    </template> {{#cookie_popup}}
+    <div id="cookie_popup">
+        <div id="terminal_history"></div>
+        <div class="flex-row" id="terminal_input_flex-row">
+            <div class="no_wrap">[root@dunmer.eu ~]#</div>
+            <input type="text" id="terminal_input_text">
+        </div>
+    </div>
+    <script>
+        function initTerminal() {
+            setupTerminal()
+        }
+        window.onload = async function() {
+            if (checkCookie("CookieChecker")) initTerminal()
+        }
+    </script>
+    {{/cookie_popup}}
 
 </body>
 

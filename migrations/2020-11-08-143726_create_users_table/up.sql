@@ -9,6 +9,7 @@ CREATE TABLE users (
     password_hash TEXT NOT NULL,
     reset_token TEXT NOT NULL,
     validation_token TEXT NOT NULL,
+    cookies_validated BOOLEAN NOT NULL DEFAULT false,
     created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

@@ -203,6 +203,16 @@ pub async fn change_password(
     Ok(HttpResponse::Ok().finish())
 }
 
+pub async fn accept_cookies(
+    pool: web::Data<db::DbPool>,
+    req: HttpRequest,
+) -> Result<HttpResponse, ApiError> {
+    let db = pool.get()?;
+    let j = extract_json_token(req)?;
+    db::users::accept_cookies(&j.id, &db)?;
+    Ok(HttpResponse::Ok().finish())
+}
+
 pub fn configure(app: &mut web::ServiceConfig) {
     app.route("/login", web::post().to(login))
         .route("/logout", web::get().to(logout))
@@ -221,7 +231,8 @@ pub fn configure(app: &mut web::ServiceConfig) {
                         .route("", web::get().to(get))
                         .route("/update", web::put().to(update))
                         .route("/delete", web::delete().to(delete))
-                        .route("/change_password", web::post().to(change_password)),
+                        .route("/change_password", web::post().to(change_password))
+                        .route("/accept_cookies", web::post().to(accept_cookies)),
                 ),
         );
 }

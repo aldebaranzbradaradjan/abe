@@ -9,6 +9,9 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="description" content="Juste le blog d'un développeur de plus, j'adorerais changer le monde, mais ils ne veulent pas me fournir le code source. Page Profil">
     <script type="text/javascript" src="/public/js/common.min.js"></script>
+    {{#cookie_popup}}
+    <script type="text/javascript" src="/public/js/terminal.min.js"></script>
+    {{/cookie_popup}}
     <title>{{title}}</title>
 </head>
 
@@ -132,6 +135,21 @@
 
     </main>
 
+    {{#cookie_popup}}
+    <div id="cookie_popup">
+        <div id="terminal_history"></div>
+        <div class="flex-row" id="terminal_input_flex-row">
+            <div class="no_wrap">[root@dunmer.eu ~]#</div>
+            <input type="text" id="terminal_input_text">
+        </div>
+    </div>
+    <script>
+        function initTerminal() {
+            setupTerminal()
+        }
+    </script>
+    {{/cookie_popup}}
+
     <script>
         function toggleCheckBoxes() {
             const checked_e = document.getElementById("change-email").checked
@@ -251,6 +269,7 @@
         };
 
         window.onload = async function() {
+            if (checkCookie("CookieChecker")) initTerminal()
             let logout_home = document.getElementsByClassName("actions-container")[0]
             if (!checkCookie("CookieChecker")) {
                 window.location.href = "/blog"
