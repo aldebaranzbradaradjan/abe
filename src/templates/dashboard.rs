@@ -9,7 +9,7 @@ struct DashboardLogin<'a> {
 }
 
 pub fn dashboard_login() -> Result<String, ApiError> {
-    let mut tpls = Ramhorns::lazy(env::var("TEMPLATES_PATH")?)?;
+    let mut tpls: Ramhorns = Ramhorns::from_folder(env::var("TEMPLATES_PATH")?)?;
     let tpl = tpls.from_file("dashboard_login.html")?;
 
     let content = DashboardLogin {

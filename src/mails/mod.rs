@@ -1,10 +1,15 @@
 pub mod user;
 use actix::prelude::*;
 use actix::Addr;
+use lettre::message::header;
+use lettre::message::MultiPart;
+use lettre::message::SinglePart;
 extern crate lettre;
 use crate::errors::ApiError;
-use lettre::{smtp::authentication::Credentials, SmtpClient, Transport};
-use lettre_email::EmailBuilder;
+
+use lettre::transport::smtp::authentication::Credentials;
+use lettre::{Message, SmtpTransport, Transport};
+
 use log::info;
 use std::env;
 
@@ -14,23 +19,36 @@ pub struct SendableEmail {
     pub to: String,
     pub title: String,
     pub content: String,
+    pub alternative: String,
 }
 
 pub fn send_mail(mail: SendableEmail) -> Result<(), ApiError> {
-    let email = EmailBuilder::new()
-        .to(mail.to)
-        .from(env::var("SMTP_CREDENTIAL")?)
+    let email = Message::builder()
+        .to(mail.to.parse()?)
+        .from(env::var("SMTP_CREDENTIAL")?.parse()?)
         .subject(mail.title)
-        .html(mail.content)
-        .build()?;
-    let mut mailer = SmtpClient::new_simple(&env::var("SMTP_URL")?)?
+        .multipart(
+            MultiPart::alternative() // This is composed of two parts.
+                .singlepart(
+                    SinglePart::builder()
+                        .header(header::ContentType::TEXT_PLAIN)
+                        .body(String::from(mail.alternative)), // Every message should have a plain text fallback.
+                )
+                .singlepart(
+                    SinglePart::builder()
+                        .header(header::ContentType::TEXT_HTML)
+                        .body(String::from(mail.content)),
+                ),
+        )?;
+
+    let mailer = SmtpTransport::relay(&env::var("SMTP_URL")?)?
         .credentials(Credentials::new(
             env::var("SMTP_CREDENTIAL")?,
             env::var("SMTP_PASSWORD")?,
         ))
-        .transport();
-        
-    mailer.send(email.into())?;
+        .build();
+
+    mailer.send(&email)?;
     Ok(())
 }
 

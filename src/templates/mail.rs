@@ -23,11 +23,20 @@ struct EmailButtons<'a> {
     url: &'a str,
 }
 
-pub fn register_user(mail: &str, username: &str, token: &str,) -> Result<String, ApiError> {
-    let mut tpls = Ramhorns::lazy(env::var("TEMPLATES_PATH")?)?;
+pub fn register_user(
+    mail: &str,
+    username: &str,
+    token: &str,
+) -> Result<(String, String), ApiError> {
+    let mut tpls: Ramhorns = Ramhorns::from_folder(env::var("TEMPLATES_PATH")?)?;
     let tpl = tpls.from_file("mail.html")?;
 
-    let url = format!("https://{}/api/v1/user/valid_account/{}/{}", env::var("DOMAIN")?, mail, token);
+    let url = format!(
+        "https://{}/api/v1/user/valid_account/{}/{}",
+        env::var("DOMAIN")?,
+        mail,
+        token
+    );
     let mut buttons = Vec::new();
 
     buttons.push(EmailButtons {
@@ -39,7 +48,9 @@ pub fn register_user(mail: &str, username: &str, token: &str,) -> Result<String,
 
     let mut paragraphs = Vec::new();
     paragraphs.push(EmailParagraphs { paragraph: &text });
-    paragraphs.push(EmailParagraphs { paragraph: "To finish your inscription click on the button below !" });
+    paragraphs.push(EmailParagraphs {
+        paragraph: "To finish your inscription click on the button below !",
+    });
 
     let content = EmailContent {
         supheader: "",
@@ -48,14 +59,23 @@ pub fn register_user(mail: &str, username: &str, token: &str,) -> Result<String,
         buttons,
     };
 
-    Ok(tpl.render(&content))
+    let alternative = format!(
+        "Hi,\n{}\nTo finish your inscription click on the link below !\n{}",
+        text, url
+    );
+    Ok((tpl.render(&content), alternative))
 }
 
-pub fn reset_token(mail: &str, username: &str, token: &str) -> Result<String, ApiError> {
-    let mut tpls = Ramhorns::lazy(env::var("TEMPLATES_PATH")?)?;
+pub fn reset_token(mail: &str, username: &str, token: &str) -> Result<(String, String), ApiError> {
+    let mut tpls: Ramhorns = Ramhorns::from_folder(env::var("TEMPLATES_PATH")?)?;
     let tpl = tpls.from_file("mail.html")?;
 
-    let url = format!("{}/blog/reset_password?email={}&token={}", env::var("DOMAIN")?, mail, token);
+    let url = format!(
+        "https://{}/blog/reset_password?email={}&token={}",
+        env::var("DOMAIN")?,
+        mail,
+        token
+    );
     let mut buttons = Vec::new();
 
     buttons.push(EmailButtons {
@@ -71,7 +91,7 @@ pub fn reset_token(mail: &str, username: &str, token: &str) -> Result<String, Ap
     let mut paragraphs = Vec::new();
 
     paragraphs.push(EmailParagraphs { paragraph: &text });
-    
+
     paragraphs.push( EmailParagraphs {
         paragraph : "If you did not request new password, please let us know immediately by replying to this email.",
     });
@@ -87,15 +107,21 @@ pub fn reset_token(mail: &str, username: &str, token: &str) -> Result<String, Ap
         buttons,
     };
 
-    Ok(tpl.render(&content))
+    let alternative = format!("Hi,\n{}\n{}\n{}\n{}",
+        text,
+        "If you did not request new password, please let us know immediately by replying to this email.",
+        "You can reset your password by clicking the link below :",
+        url);
+
+    Ok((tpl.render(&content), alternative))
 }
 
-pub fn change_password_success(mail: &str, username: &str) -> Result<String, ApiError> {
-    let mut tpls = Ramhorns::lazy(env::var("TEMPLATES_PATH")?)?;
+pub fn change_password_success(mail: &str, username: &str) -> Result<(String, String), ApiError> {
+    let mut tpls: Ramhorns = Ramhorns::from_folder(env::var("TEMPLATES_PATH")?)?;
     let tpl = tpls.from_file("mail.html")?;
 
     let text = format!(
-        "The password for the {} account associated with {} has changed.",
+        "The password for the {} account associated with {} has been changed.",
         username, mail
     );
 
@@ -109,5 +135,6 @@ pub fn change_password_success(mail: &str, username: &str) -> Result<String, Api
         buttons: Vec::new(),
     };
 
-    Ok(tpl.render(&content))
+    let alternative = format!("Hi,\n{}", text);
+    Ok((tpl.render(&content), alternative))
 }

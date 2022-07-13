@@ -4,6 +4,7 @@ use crate::database::models::Post;
 
 use crate::errors::*;
 
+//use std::borrow::Borrow;
 use std::env;
 
 extern crate pulldown_cmark;
@@ -27,7 +28,7 @@ struct PostContent<'a> {
     toc: &'a str,
     body: &'a str,
     date: String,
-    cookie_popup: bool
+    cookie_popup: bool,
 }
 
 #[derive(Content)]
@@ -47,13 +48,13 @@ struct BlogContent<'a> {
     total_pages: &'a i64,
     prev_page: Option<&'a i64>,
     next_page: Option<&'a i64>,
-    cookie_popup: bool
+    cookie_popup: bool,
 }
 
 #[derive(Content)]
 struct TitleContent<'a> {
     title: &'a str,
-    cookie_popup: bool
+    cookie_popup: bool,
 }
 
 pub fn add_markdown_toc(content: &str) -> Result<Vec<String>, ApiError> {
@@ -66,7 +67,7 @@ pub fn add_markdown_toc(content: &str) -> Result<Vec<String>, ApiError> {
     let mut toc = String::new();
     let mut skip = false;
 
-    let mut count : i32 = -1;
+    let mut count: i32 = -1;
     //result.push_str( &format!("# Table of Contents\n") );
 
     content
@@ -111,11 +112,7 @@ pub fn add_markdown_toc(content: &str) -> Result<Vec<String>, ApiError> {
                 "{} {} {}",
                 " ".repeat(2).repeat(x.depth),
                 "*",
-                format!(
-                    "[{}](#anchor-content-{})",
-                    &x.title,
-                    &count
-                )
+                format!("[{}](#anchor-content-{})", &x.title, &count)
             ))
         })
         .for_each(|l| {
@@ -137,8 +134,7 @@ pub fn add_markdown_toc(content: &str) -> Result<Vec<String>, ApiError> {
                 count = count + 1;
                 format!(
                     "<a class=\"anchor-content\" id=\"anchor-content-{}\"></a>\n{}",
-                    &count,
-                    l
+                    &count, l
                 )
             } else {
                 l.to_owned()
@@ -152,13 +148,13 @@ pub fn add_markdown_toc(content: &str) -> Result<Vec<String>, ApiError> {
 }
 
 struct EventIter<'a> {
-    p: Parser<'a>,
+    p: Parser<'a, 'a>,
     ss: SyntaxSet,
     ts: ThemeSet,
 }
 
 impl<'a> EventIter<'a> {
-    pub fn new(p: Parser<'a>) -> Self {
+    pub fn new(p: Parser<'a, 'a>) -> Self {
         EventIter {
             p: p,
             ss: SyntaxSet::load_defaults_newlines(),
@@ -213,6 +209,7 @@ impl<'a> Iterator for EventIter<'a> {
                                 &sr,
                                 &self.ts.themes["base16-ocean.dark"],
                             )
+                            .unwrap_or(vec.join("\n"))
                             .into(),
                         ));
                     }
@@ -244,7 +241,7 @@ pub fn render_markdown(markdown: &str, highlighting: bool) -> String {
 }
 
 pub fn register_login_template() -> Result<String, ApiError> {
-    let mut tpls = Ramhorns::lazy(env::var("TEMPLATES_PATH")?)?;
+    let mut tpls: Ramhorns = Ramhorns::from_folder(env::var("TEMPLATES_PATH")?)?;
     let content = PlatformContent {
         platform_name: &env::var("PLATFORM_NAME")?,
     };
@@ -252,7 +249,7 @@ pub fn register_login_template() -> Result<String, ApiError> {
 }
 
 pub fn reset_password_template() -> Result<String, ApiError> {
-    let mut tpls = Ramhorns::lazy(env::var("TEMPLATES_PATH")?)?;
+    let mut tpls: Ramhorns = Ramhorns::from_folder(env::var("TEMPLATES_PATH")?)?;
     let content = PlatformContent {
         platform_name: &env::var("PLATFORM_NAME")?,
     };
@@ -260,7 +257,7 @@ pub fn reset_password_template() -> Result<String, ApiError> {
 }
 
 pub fn post_template(post: Post, cookie_accepted: bool) -> Result<String, ApiError> {
-    let mut tpls = Ramhorns::lazy(env::var("TEMPLATES_PATH")?)?;
+    let mut tpls: Ramhorns = Ramhorns::from_folder(env::var("TEMPLATES_PATH")?)?;
     let post_vec = add_markdown_toc(&post.body)?;
     let posts_content = PostContent {
         id: &post.id,
@@ -269,13 +266,17 @@ pub fn post_template(post: Post, cookie_accepted: bool) -> Result<String, ApiErr
         abstract_: &post.abstract_,
         body: &render_markdown(&post_vec[1], true),
         date: post.created_at.format("%Y-%m-%d %H:%M:%S").to_string(),
-        cookie_popup: !cookie_accepted
+        cookie_popup: !cookie_accepted,
     };
     Ok(tpls.from_file("blog_post.html")?.render(&posts_content))
 }
 
-pub fn home_template(posts: (Vec<Post>, i64), page: Option<i64>, cookie_accepted: bool) -> Result<String, ApiError> {
-    let mut tpls = Ramhorns::lazy(env::var("TEMPLATES_PATH")?)?;
+pub fn home_template(
+    posts: (Vec<Post>, i64),
+    page: Option<i64>,
+    cookie_accepted: bool,
+) -> Result<String, ApiError> {
+    let mut tpls: Ramhorns = Ramhorns::from_folder(env::var("TEMPLATES_PATH")?)?;
     let mut posts_content = Vec::new();
     for post in posts.0.iter() {
         posts_content.push(PostAbstractContent {
@@ -308,18 +309,17 @@ pub fn home_template(posts: (Vec<Post>, i64), page: Option<i64>, cookie_accepted
                 }
                 _ => None,
             },
-            cookie_popup: !cookie_accepted
+            cookie_popup: !cookie_accepted,
         }),
     ))
 }
 
 pub fn profile_template(cookie_accepted: bool) -> Result<String, ApiError> {
-    let mut tpls = Ramhorns::lazy(env::var("TEMPLATES_PATH")?)?;
-    
+    let mut tpls: Ramhorns = Ramhorns::from_folder(env::var("TEMPLATES_PATH")?)?;
     Ok(tpls.from_file("blog_profile.html")?.render(
         &(TitleContent {
             title: "Profil",
-            cookie_popup: !cookie_accepted
+            cookie_popup: !cookie_accepted,
         }),
     ))
 }

@@ -25,10 +25,11 @@ pub fn register(admin: bool, user: &CreateUser, db: &DbConnection) -> Result<i32
     if let true = diesel::select(exists(users.filter(email.eq(&user.email)))).get_result(db)? {
         return Err(ApiError::InternalError("The user email exist".to_owned()));
     }
-    let key = rand::thread_rng()
+    let key: String = rand::thread_rng()
         .sample_iter(&Alphanumeric)
         .take(32)
-        .collect::<String>();
+        .map(char::from)
+        .collect();
     let hash = hash(format!("{}{}", user.email, user.password), DEFAULT_COST)?;
     let new_user = NewUser {
         is_admin: &admin,
@@ -136,10 +137,11 @@ pub fn verify_token(
 
 pub fn generate_reset_token(mail: &str, db: &DbConnection) -> Result<String, ApiError> {
     let user = get_user_by_email(mail, db)?;
-    let rand = rand::thread_rng()
+    let rand: String = rand::thread_rng()
         .sample_iter(&Alphanumeric)
         .take(6)
-        .collect::<String>();
+        .map(char::from)
+        .collect();
     let key = user.token_key.as_bytes().to_vec();
     let mut branca = Branca::new(&key)?;
     let token = branca.encode(&rand.as_bytes())?;
@@ -163,10 +165,11 @@ pub fn verify_reset_token(mail: &str, token: &str, db: &DbConnection) -> Result<
 
 pub fn generate_validation_token(mail: &str, db: &DbConnection) -> Result<String, ApiError> {
     let user = get_user_by_email(mail, db)?;
-    let rand = rand::thread_rng()
+    let rand: String = rand::thread_rng()
         .sample_iter(&Alphanumeric)
         .take(6)
-        .collect::<String>();
+        .map(char::from)
+        .collect();
     let key = user.token_key.as_bytes().to_vec();
     let mut branca = Branca::new(&key)?;
     let token = branca.encode(&rand.as_bytes())?;

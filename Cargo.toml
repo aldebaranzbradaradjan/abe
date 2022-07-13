@@ -22,37 +22,36 @@ actix-web-actors = "4.1.0"
 actix-service = "2.0.2"
 actix-files = "0.6.1"
 
-r2d2 = "0.8.9"
-diesel = { version = "1.4.5", features = ["postgres", "chrono", "r2d2"] }
-log = "0.4.11"
-env_logger = "0.8.2"
+r2d2 = "0.8.10"
+diesel = { version = "1.4.8", features = ["postgres", "chrono", "r2d2"] }
+log = "0.4.17"
+env_logger = "0.9.0"
 dotenv = "0.15.0"
 
-serde = "1.0.117"
-serde_json = "1.0.59"
-serde_derive = "1.0.117"
-derive_more = "0.99.11"
+serde = "1.0.139"
+serde_json = "1.0.82"
+serde_derive = "1.0.139"
+derive_more = "0.99.17"
 
-uuid = { version = "0.8.1", features = ["serde", "v4"] }
-rand = "0.7.3"
-bcrypt = "0.9.0"
-branca = "0.10.0"
-ring = "0.16.18"
+uuid = { version = "1.1.2", features = ["serde", "v4"] }
+rand = "0.8.5"
+bcrypt = "0.13.0"
+branca = "0.10.1"
+ring = "0.16.20"
 time = "0.3.11"
 chrono = { version = "0.4.19", features = ["serde"] }
-futures = "0.3.8"
+futures = "0.3.21"
 tokio = {version = "1.19.2", features = ["full"] }
 failure = "0.1.8"
 
-validator = { version = "0.12.0", features = ["derive"] }
+validator = { version = "0.15.0", features = ["derive"] }
 
-structopt = { version = "0.3", default-features = false }
+structopt = { version = "0.3.26", default-features = false }
 
-lettre = "0.9"
-lettre_email = "0.9"
+lettre = "0.10.0"
+lettre_email = "0.9.4"
 
-
-ramhorns = "0.11.0"
-pulldown-cmark = { version = "0.8", default-features = false, features = ["simd"] }
-syntect = "4.4"
-ammonia = "3.1.3"
+ramhorns = "0.14.0"
+pulldown-cmark = { version = "0.9.1", default-features = false, features = ["simd"] }
+syntect = "5.0.0"
+ammonia = "3.2.0"

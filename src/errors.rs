@@ -1,12 +1,15 @@
-use actix_web::{HttpResponse, ResponseError, error};
+use actix_web::{error, HttpResponse, ResponseError};
 use derive_more::Display;
 
 use bcrypt::BcryptError;
 use branca::errors::Error as BrancaError;
 use chrono::ParseError as ChronoParseError;
 use diesel::result::Error as DieselError;
-use lettre::smtp::error::Error as LettreSmtpError;
-use lettre_email::error::Error as LettreError;
+use lettre::{
+    address::AddressError as LettreAddressError, error::Error as LettreError,
+    transport::smtp::Error as LettreSmtpError,
+};
+use lettre_email::error::Error as LettreMailError;
 use r2d2::Error as R2D2Error;
 use ramhorns::Error as RamhornsError;
 use serde_json::error::Error as SerdeError;
@@ -95,8 +98,20 @@ impl From<LettreError> for ApiError {
     }
 }
 
+impl From<LettreMailError> for ApiError {
+    fn from(error: LettreMailError) -> ApiError {
+        ApiError::InternalError(error.to_string())
+    }
+}
+
 impl From<LettreSmtpError> for ApiError {
     fn from(error: LettreSmtpError) -> ApiError {
+        ApiError::InternalError(error.to_string())
+    }
+}
+
+impl From<LettreAddressError> for ApiError {
+    fn from(error: LettreAddressError) -> ApiError {
         ApiError::InternalError(error.to_string())
     }
 }

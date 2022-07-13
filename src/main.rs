@@ -59,8 +59,6 @@ async fn main() -> std::io::Result<()> {
     let notifier = websockets::notification::NotificationServer::new().start();
 
     HttpServer::new(move || {
-
-
         App::new()
             .app_data(Data::new(pool.clone()))
             // insert actor postman
