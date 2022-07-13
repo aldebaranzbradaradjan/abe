@@ -27,7 +27,7 @@ pub fn register_user(mail: &str, username: &str, token: &str,) -> Result<String,
     let mut tpls = Ramhorns::lazy(env::var("TEMPLATES_PATH")?)?;
     let tpl = tpls.from_file("mail.html")?;
 
-    let url = format!("{}/api/v1/user/valid_account/{}/{}", env::var("DOMAIN")?, mail, token);
+    let url = format!("https://{}/api/v1/user/valid_account/{}/{}", env::var("DOMAIN")?, mail, token);
     let mut buttons = Vec::new();
 
     buttons.push(EmailButtons {

@@ -1,4 +1,4 @@
-use actix_web::{HttpResponse, ResponseError};
+use actix_web::{HttpResponse, ResponseError, error};
 use derive_more::Display;
 
 use bcrypt::BcryptError;
@@ -26,7 +26,7 @@ pub struct ErrorResponse {
 impl ResponseError for ApiError {
     fn error_response(&self) -> HttpResponse {
         match self {
-            _ => HttpResponse::InternalServerError().json::<ErrorResponse>(self.into()),
+            _ => error::ErrorInternalServerError(self.to_string()).into(),
         }
     }
 }

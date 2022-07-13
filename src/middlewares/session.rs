@@ -1,10 +1,14 @@
-use actix_service::{Service, Transform};
-use actix_web::{
-    dev::ServiceRequest, dev::ServiceResponse, http, web, Error, HttpMessage, HttpRequest,
-    HttpResponse,
-};
-use futures::future::{ok, Either, Ready};
-use std::task::{Context, Poll};
+
+use actix_web::body::EitherBody;
+// use actix_service::{Service, Transform};
+use actix_web::dev::{Service, ServiceRequest, ServiceResponse, Transform};
+use actix_web::{http, web, Error, HttpRequest, HttpResponse};
+use futures::future::{ok, LocalBoxFuture, Ready};
+
+//use futures_util::future::LocalBoxFuture;
+
+use std::rc::Rc;
+//use std::task::{Context, Poll};
 
 use crate::db;
 use crate::errors::*;
@@ -40,14 +44,13 @@ pub struct BrancaSession(pub Level);
 // Middleware factory is `Transform` trait from actix-service crate
 // `S` - type of the next service
 // `B` - type of response's body
-impl<S, B> Transform<S> for BrancaSession
+impl<S, B> Transform<S, ServiceRequest> for BrancaSession
 where
-    S: Service<Request = ServiceRequest, Response = ServiceResponse<B>, Error = Error>,
+    S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error>,
     S::Future: 'static,
     B: 'static,
 {
-    type Request = ServiceRequest;
-    type Response = ServiceResponse<B>;
+    type Response = ServiceResponse<EitherBody<B>>;
     type Error = Error;
     type InitError = ();
     type Transform = BrancaSessionMiddleware<S>;
@@ -55,48 +58,57 @@ where
 
     fn new_transform(&self, service: S) -> Self::Future {
         ok(BrancaSessionMiddleware {
-            service,
+            service: Rc::new(service),
             level: self.0,
         })
     }
 }
 
 pub struct BrancaSessionMiddleware<S> {
-    service: S,
+    service: Rc<S>,
     level: Level,
 }
 
-impl<S, B> Service for BrancaSessionMiddleware<S>
+impl<S, B> Service<ServiceRequest> for BrancaSessionMiddleware<S>
 where
-    S: Service<Request = ServiceRequest, Response = ServiceResponse<B>, Error = Error>,
+    S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error>,
     S::Future: 'static,
-    //B: 'static,
+    B: 'static,
 {
-    type Request = ServiceRequest;
-    type Response = ServiceResponse<B>;
+    type Response = ServiceResponse<EitherBody<B>>;
     type Error = Error;
-    type Future = Either<S::Future, Ready<Result<Self::Response, Self::Error>>>;
+    type Future = LocalBoxFuture<'static, Result<Self::Response, Self::Error>>;
 
-    fn poll_ready(&mut self, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
-        self.service.poll_ready(cx)
-    }
+    actix_web::dev::forward_ready!(service);
 
-    fn call(&mut self, req: ServiceRequest) -> Self::Future {
-        match is_authorized(&req, self.level) {
-            Ok(()) => Either::Left(self.service.call(req)),
-            Err(e) => Either::Right(ok(req.into_response(
-                HttpResponse::Found()
-                    .header(
-                        http::header::LOCATION,
-                        match self.level {
-                            Level::Admin => "/dashboard/login",
-                            Level::User => "/blog/login",
-                        },
-                    )
-                    .body(format!("Invalid Token : {}", e))
-                    .into_body(),
-            ))),
+    fn call(&self, request: ServiceRequest) -> Self::Future {
+        let is_logged_in = match is_authorized(&request, self.level) {
+            Ok(()) => true,
+            Err(_) => false,
+        };
+        if !is_logged_in {
+            let (request, _pl) = request.into_parts();
+
+            let response = HttpResponse::Found()
+                .insert_header((
+                    http::header::LOCATION,
+                    match self.level {
+                        Level::Admin => "/dashboard/login",
+                        Level::User => "/blog/login",
+                    },
+                ))
+                .finish()
+                // constructed responses map to "right" body
+                .map_into_right_body();
+
+            return Box::pin(async { Ok(ServiceResponse::new(request, response)) });
         }
+
+        let res = self.service.call(request);
+        Box::pin(async move {
+            // forwarded responses map to "left" body
+            res.await.map(ServiceResponse::map_into_left_body)
+        })
     }
 }
 

@@ -1,4 +1,5 @@
 use actix_files::Files;
+use actix_web::web::Data;
 use actix_web::{middleware, web, App, HttpServer};
 
 #[macro_use]
@@ -58,13 +59,14 @@ async fn main() -> std::io::Result<()> {
     let notifier = websockets::notification::NotificationServer::new().start();
 
     HttpServer::new(move || {
+
+
         App::new()
-            // add the pool to app state
-            .data(pool.clone())
+            .app_data(Data::new(pool.clone()))
             // insert actor postman
-            .data(postman.clone())
+            .app_data(Data::new(postman.clone()))
             // insert list of clients
-            .data(notifier.clone())
+            .app_data(Data::new(notifier.clone()))
             .service(
                 web::scope("/api/v1")
                     .configure(handler::users::configure)

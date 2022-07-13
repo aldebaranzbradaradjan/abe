@@ -130,7 +130,7 @@ function appendEditor(node, id) {
         node.parentNode.insertBefore(clone, node.nextSibling);
 }
 
-async function appendComment(node, comment) {
+async function appendComment(node, comment, prepend) {
     var comment_template = document.querySelector("#comment_template");
     var clone = document.importNode(comment_template.content, true)
     var divs = clone.querySelector(".comment")
@@ -167,7 +167,7 @@ async function appendComment(node, comment) {
             data = await getComments(null, comment[0].id, 10, 1)
             for (var i = 0; i < data[1]; i++) {
                 for (const cmt of data[0]) {
-                    await appendComment(document.getElementById("subcomments" + comment[0].id), cmt)
+                    await appendComment(document.getElementById("subcomments" + comment[0].id), cmt, false)
                 }
                 data = await getComments(null, comment[0].id, 10, i + 2)
             }
@@ -175,7 +175,10 @@ async function appendComment(node, comment) {
         divs.querySelector(".bottom").append(a)
     }
 
-    node.appendChild(clone)
+    if (prepend) {
+        let existingNode = document.getElementById("comment_prepender")
+        existingNode.parentNode.insertBefore(clone, existingNode.nextSibling);
+    } else node.appendChild(clone)
 }
 
 async function renderComments(node, post_id, parent_id, page_size, page) {
@@ -188,7 +191,7 @@ async function renderComments(node, post_id, parent_id, page_size, page) {
 
     if (data[1] !== 0) {
         for (const cmt of data[0]) {
-            await appendComment(node, cmt)
+            await appendComment(node, cmt, false)
         }
         if (data[1] > page) {
             const show_more_comments = node.getElementsByClassName("show_more_comments")
@@ -222,6 +225,9 @@ async function initComments() {
         h.innerText = count + " commentaires"
         document.getElementById("comments").appendChild(h)
         if (checkCookie("CookieChecker")) appendEditor(null, null)
+        let d = document.createElement("div")
+        d.id = "comment_prepender"
+        document.getElementById("comments").appendChild(d)
         await renderComments(document.getElementById("comments"), postId, null, 10, 1)
     } else {
         let h = document.createElement("h2")
@@ -230,6 +236,9 @@ async function initComments() {
         h.innerText = "Il n'y a pas encore de commentaires, écrivez le premier !"
         document.getElementById("comments").appendChild(h)
         if (checkCookie("CookieChecker")) appendEditor(null, null)
+        let d = document.createElement("div")
+        d.id = "comment_prepender"
+        document.getElementById("comments").appendChild(d)
     }
 
     if (!checkCookie("CookieChecker")) {
@@ -373,8 +382,8 @@ window.onload = async function() {
 
             if (cmt[0].parent_id !== null) {
                 if (document.getElementById("subcomments" + cmt[0].parent_id) !== null)
-                    appendComment(document.getElementById("subcomments" + cmt[0].parent_id), cmt)
-            } else appendComment(document.getElementById("comments"), cmt)
+                    appendComment(document.getElementById("subcomments" + cmt[0].parent_id), cmt, false)
+            } else appendComment(document.getElementById("comments"), cmt, true)
         }
     });
 

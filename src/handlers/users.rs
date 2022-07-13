@@ -36,7 +36,7 @@ pub async fn validate_account(
     let db = pool.get()?;
     db::users::verify_validation_token(&email, &token, &db)?;
     Ok(HttpResponse::Found()
-        .header(http::header::LOCATION, "/blog/login")
+        .append_header((http::header::LOCATION, "/blog/login"))
         .finish())
 }
 
@@ -131,7 +131,7 @@ pub async fn logout() -> Result<HttpResponse, ApiError> {
         .path("/")
         //.secure(true)
         .http_only(true)
-        .max_age(Duration::zero())
+        .max_age(Duration::ZERO)
         .expires(OffsetDateTime::now_utc() - Duration::days(365))
         .same_site(SameSite::Lax)
         .finish();
@@ -140,7 +140,7 @@ pub async fn logout() -> Result<HttpResponse, ApiError> {
         .path("/")
         //.secure(true)
         .http_only(true)
-        .max_age(Duration::zero())
+        .max_age(Duration::ZERO)
         .expires(OffsetDateTime::now_utc() - Duration::days(365))
         .same_site(SameSite::Lax)
         .finish();

@@ -31,7 +31,7 @@ pub async fn post(
         Ok(j) => db::users::get_user_by_id(&j.id, &db)?.cookies_validated,
         Err(_) => true,
     };
-    let post = db::posts::get(&input.0.id, PostState::Published, &db)?;
+    let post = db::posts::get(&input.id, PostState::Published, &db)?;
     Ok(HttpResponse::Ok()
         .content_type("text/html")
         .body(post_template(post, cookie_accepted)?))
@@ -50,14 +50,14 @@ pub async fn page(
         Err(_) => true,
     };
     let params = PaginationParams {
-        page: input.0.page,
-        page_size: input.0.page_size,
+        page: input.page,
+        page_size: input.page_size,
         state: PostState::Published,
     };
     let posts = db::posts::list(params, &db)?;
     Ok(HttpResponse::Ok()
         .content_type("text/html")
-        .body(home_template(posts, input.0.page, cookie_accepted)?))
+        .body(home_template(posts, input.page, cookie_accepted)?))
 }
 
 pub async fn home(pool: web::Data<db::DbPool>, req: HttpRequest) -> Result<HttpResponse, ApiError> {

@@ -269,7 +269,8 @@
         };
 
         window.onload = async function() {
-            if (checkCookie("CookieChecker")) initTerminal()
+            if (checkCookie("CookieChecker"))
+                if (typeof initTerminal === "function") initTerminal()
             let logout_home = document.getElementsByClassName("actions-container")[0]
             if (!checkCookie("CookieChecker")) {
                 window.location.href = "/blog"
